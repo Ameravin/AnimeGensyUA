@@ -121,6 +121,28 @@ if (saveBtn) {
     };
 }
 
+// Чекаємо завантаження сторінки
+document.addEventListener('DOMContentLoaded', () => {
+    const profileBtn = document.querySelector('.profile-preview');
+    const dropdown = document.querySelector('.dropdown-content');
+
+    if (profileBtn && dropdown) {
+        // Відкриваємо/закриваємо тільки по кліку
+        profileBtn.onclick = (e) => {
+            e.stopPropagation(); // Це важливо: клік не йде далі до документа
+            dropdown.classList.toggle('show');
+        };
+
+        // Закриваємо, якщо клікнули в будь-якому іншому місці
+        document.addEventListener('click', (e) => {
+            // Якщо клік був НЕ по меню і НЕ по кнопці профілю
+            if (!dropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    }
+});
+
 // Заповнення полів даними при завантаженні сторінки профілю
 onAuthStateChanged(auth, (user) => {
     if (user && window.location.pathname.includes('profile.html')) {
