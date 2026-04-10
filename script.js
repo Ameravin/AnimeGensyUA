@@ -77,7 +77,7 @@ if (saveBtn) {
         const status = document.getElementById('save-status');
         
         // !!! ВСТАВ СВІЙ КЛЮЧ ТУТ !!!
-        const IMGBB_API_KEY = 'ТВІЙ_ОТРИМАНИЙ_КЛЮЧ_IMGBB'; 
+        const IMGBB_API_KEY = '639434d76b34da4071bc50f6a9171a3e'; 
 
         try {
             let photoURL = user.photoURL;
