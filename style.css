@@ -195,7 +195,7 @@ a {
 /* --- ОНОВЛЕНЕ ВИПАДАЮЧЕ МЕНЮ --- */
 /* Базовий стан меню */
 .dropdown-content {
-    display: block; /* Повинен бути block, щоб працювала анімація */
+    display: none; /* Повинен бути block, щоб працювала анімація */
     position: absolute;
     top: 100%;
     right: 0;
@@ -218,6 +218,7 @@ a {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+    display: block !important;
 }
 
 @keyframes fadeIn {
