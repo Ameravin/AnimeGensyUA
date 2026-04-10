@@ -133,6 +133,19 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+onAuthStateChanged(auth, (user) => {
+    const adminLink = document.querySelector('a[href="admin.html"]'); // Шукаємо посилання в меню
+    const ADMIN_UID = "1mkKuWCJ5gQGOglP5L5JI5ueiB62";
+
+    if (user && user.uid === ADMIN_UID) {
+        if (adminLink) adminLink.style.display = "block"; // Показуємо адмінку тільки тобі
+    } else {
+        if (adminLink) adminLink.style.display = "none";  // Ховаємо від усіх інших
+    }
+    
+    // ... твій інший код відображення імені та аватара
+});
+
 // --- ЛОГІКА КОНТЕНТУ (Твій код) ---
 
 // 1. ЗАВАНТАЖЕННЯ ГОЛОВНОЇ СІТКИ (Index Page)
