@@ -205,15 +205,12 @@
     const auth = getAuth(app);
 
     // --- ПЕРЕВІРКА АДМІНА ---
-    onAuthStateChanged(auth, (user) => {
-        const ADMIN_UID = "1mkKuWCJ5gQGOglP5L5JI5ueiB62"; // Сюди встав свій UID
-
-        if (!user || user.uid !== ADMIN_UID) {
-            // Якщо не адмін — миттєво редірект
-            window.location.href = "index.html";
-        } else {
-            // Якщо ти — показуємо сторінку
-            document.body.style.display = "block";
+onAuthStateChanged(auth, (user) => {
+    const ADMIN_UID = "1mkKuWCJ5gQGOglP5L5JI5ueiB62"; // Твій ID вже тут
+    if (!user || user.uid !== ADMIN_UID) {
+        window.location.href = "index.html";
+    } else {
+        document.body.style.display = "block";
             console.log("Єсть пробітіє!");
         }
     });
