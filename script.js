@@ -70,25 +70,53 @@ const saveBtn = document.getElementById('save-profile-btn');
 if (saveBtn) {
     saveBtn.onclick = async () => {
         const user = auth.currentUser;
+        if (!user) return;
+
+        const fileInput = document.getElementById('avatar-file-input');
         const newName = document.getElementById('display-name-input').value;
-        const newAvatar = document.getElementById('avatar-url-input').value;
         const status = document.getElementById('save-status');
+        
+        // !!! ВСТАВ СВІЙ КЛЮЧ ТУТ !!!
+        const IMGBB_API_KEY = 'ТВІЙ_ОТРИМАНИЙ_КЛЮЧ_IMGBB'; 
 
-        if (user) {
-            try {
-                await updateProfile(user, {
-                    displayName: newName,
-                    photoURL: newAvatar
+        try {
+            let photoURL = user.photoURL;
+
+            // Якщо вибрано новий файл — вантажимо на ImgBB
+            if (fileInput && fileInput.files[0]) {
+                const formData = new FormData();
+                formData.append('image', fileInput.files[0]);
+
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
                 });
-                
-                // Також можна зберегти "Bio" в LocalStorage для простоти зараз
-                localStorage.setItem(`bio_${user.uid}`, document.getElementById('bio-input').value);
 
-                status.style.display = "block";
-                setTimeout(() => status.style.display = "none", 3000);
-            } catch (error) {
-                alert("Помилка збереження: " + error.message);
+                const imgbbData = await imgbbResponse.json();
+                if (imgbbData.success) {
+                    photoURL = imgbbData.data.url;
+                } else {
+                    throw new Error("ImgBB upload failed");
+                }
             }
+
+            // Оновлюємо Firebase профіль
+            await updateProfile(user, {
+                displayName: newName,
+                photoURL: photoURL
+            });
+
+            // Зберігаємо біо в LocalStorage
+            const bioText = document.getElementById('bio-input').value;
+            localStorage.setItem(`bio_${user.uid}`, bioText);
+
+            if (status) status.style.display = "block";
+            alert("Зміни збережено!");
+            location.reload(); 
+
+        } catch (error) {
+            console.error("Помилка оновлення:", error);
+            alert("Сталася помилка при збереженні.");
         }
     };
 }
