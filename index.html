@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <header class="header">
+<header class="header">
     <div class="container header-content">
         <a href="index.html" class="logo-link">
             <div class="logo">Anime<span>UA</span></div>
@@ -31,45 +31,46 @@
         </div>
 
         <div class="user-menu">
-<div class="notifications">
-    <span class="icon">🔔</span>
-    <span id="notif-badge" class="badge" style="display: none;">0</span>
-</div>
-            <div class="profile-preview">
-                <img src="https://via.placeholder.com/35" alt="Avatar" class="avatar">
-                <span class="username">Профіль</span>
+            <div class="notifications">
+                <span class="icon">🔔</span>
+                <span id="notif-badge" class="badge" style="display: none;">0</span>
+            </div>
+
+            <button id="auth-btn" style="background: var(--accent-color, #ff4d4d); border: none; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer;">Увійти</button>
+
+            <div id="profile-block" class="profile-preview" style="display: none;">
+                <img id="user-avatar" src="https://via.placeholder.com/35" alt="Avatar" class="avatar">
+                <span id="user-name" class="username">Профіль</span>
                 <div class="dropdown-content">
-    <a href="#">Мій кабінет</a>
-    <a href="#">Закладки</a>
-    <a href="admin.html" style="color: var(--accent-color);">Адмін-панель</a> <hr>
-    <a href="#" class="logout">Вихід</a>
-</div>
+                    <a href="#">Мій кабінет</a>
+                    <a href="#">Закладки</a>
+                    <a href="admin.html" style="color: #ff4d4d;">Адмін-панель</a> <hr>
+                    <a href="#" id="logout-btn" class="logout">Вихід</a>
+                </div>
             </div>
         </div>
     </div>
 </header>
+
 <div id="auth-modal" class="modal" style="display: none;">
     <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <button id="btn-google">Увійти через Google</button>
-        <input type="email" id="auth-email" placeholder="Email">
-        <input type="password" id="auth-password" placeholder="Пароль">
-        <button id="btn-login-email">Увійти</button>
-        <button id="btn-register-email">Реєстрація</button>
+        <span class="close-modal" style="cursor: pointer; float: right; font-size: 24px;">&times;</span>
+        <h2 style="color: white; margin-bottom: 20px;">Вхід</h2>
+        <button id="btn-google" style="width: 100%; padding: 10px; margin-bottom: 10px; cursor: pointer;">Увійти через Google</button>
+        <div style="margin: 10px 0; color: #777;">або</div>
+        <input type="email" id="auth-email" placeholder="Email" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+        <input type="password" id="auth-password" placeholder="Пароль" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+        <button id="btn-login-email" style="width: 100%; padding: 10px; margin-bottom: 5px; cursor: pointer;">Увійти</button>
+        <button id="btn-register-email" style="width: 100%; padding: 10px; cursor: pointer;">Реєстрація</button>
     </div>
 </div>
 
-    <main class="container">
-        <h2 class="section-title">Останні оновлення</h2>
-        
-        <div class="anime-grid" id="main-anime-grid">
-            <div class="anime-card">
-                <div class="poster"><img src="https://via.placeholder.com/200x300" alt="loading"></div>
-                <div class="info"><div class="title">Завантаження...</div></div>
-            </div>
+<main class="container">
+    <h2 class="section-title">Останні оновлення</h2>
+    <div class="anime-grid" id="main-anime-grid">
         </div>
-    </main>
+</main>
 
-    <script type="module" src="script.js"></script>
+<script type="module" src="script.js"></script>
 </body>
 </html>
