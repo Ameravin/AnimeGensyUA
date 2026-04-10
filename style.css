@@ -194,10 +194,10 @@ a {
 
 /* --- ОНОВЛЕНЕ ВИПАДАЮЧЕ МЕНЮ --- */
 .dropdown-content {
-    /* Замість display: none використовуємо видимість для анімації */
-    display: block; 
-    visibility: hidden; 
+    display: block; /* Завжди блок, але... */
+    visibility: hidden; /* ...невидимий */
     opacity: 0;
+    pointer-events: none; /* Не реагує на мишу */
     
     position: absolute;
     top: 100%;
@@ -207,19 +207,15 @@ a {
     border-radius: 12px;
     border: 1px solid #3a3a3a;
     z-index: 1000;
-    
     transform: translateY(10px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-    
-    /* Щоб не можна було клікнути по прихованому меню */
-    pointer-events: none; 
+    transition: all 0.2s ease;
 }
 /* Коли додаємо клас .show через JS */
 .dropdown-content.show {
     visibility: visible;
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto; /* Дозволяємо кліки */
+    pointer-events: auto; /* Починає реагувати на кліки */
 }
 
 @keyframes fadeIn {
