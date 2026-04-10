@@ -1,44 +1,48 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мій профіль — AnimeUA</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="profile-page">
-
-    <header class="header">
-        <div class="container header-content">
-            <a href="index.html" class="logo-link"><div class="logo">Anime<span>UA</span></div></a>
-            <nav class="nav"><a href="index.html">На головну</a></nav>
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="profile-edit-card">
-            <h1>Налаштування профілю</h1>
+<main class="container">
+    <div class="profile-container">
+        <div class="profile-header-bar">ПРОФІЛЬ КОРИСТУВАЧА <span id="profile-title-name">...</span></div>
+        
+        <div class="profile-info-grid">
+            <div class="profile-left-side">
+                <div class="profile-avatar-container">
+                    <img id="edit-avatar-preview" src="https://via.placeholder.com/100?text=?" alt="Avatar">
+                    <div class="status-indicator online">ОНЛАЙН</div>
+                </div>
+                <button class="pm-btn">Написати ПП</button>
+            </div>
             
-            <div class="avatar-setup">
-                <img id="edit-avatar-preview" src="https://via.placeholder.com/100?text=?" alt="Avatar">
-                <input type="text" id="avatar-url-input" placeholder="Посилання на нову аватарку (URL)">
+            <div class="profile-right-side">
+                <div class="info-row"><span>Група:</span> <p>Анімешник</p></div>
+                <div class="info-row"><span>Ім'я:</span> <p id="info-display-name">...</p></div>
+                <div class="info-row"><span>Реєстрація:</span> <p id="info-reg-date">...</p></div>
+                <button id="toggle-edit-btn" class="edit-profile-trigger">Редагувати профіль</button>
             </div>
-
-            <div class="input-group">
-                <label>Нікнейм</label>
-                <input type="text" id="display-name-input" placeholder="Твій нікнейм">
-            </div>
-
-            <div class="input-group">
-                <label>Про себе</label>
-                <textarea id="bio-input" placeholder="Розкажи щось про себе..."></textarea>
-            </div>
-
-            <button id="save-profile-btn" class="main-auth-btn">Зберегти зміни</button>
-            <p id="save-status" style="display:none; color: #4caf50; margin-top: 10px;">Зміни збережено!</p>
         </div>
-    </main>
 
-    <script type="module" src="script.js"></script>
-</body>
-</html>
+        <div id="edit-section" class="edit-section" style="display: none;">
+            <div class="profile-header-bar">РЕДАГУВАННЯ ПРОФІЛЮ</div>
+            
+            <div class="edit-form">
+                <div class="edit-row">
+                    <label>Ваше Ім'я:</label>
+                    <input type="text" id="display-name-input">
+                </div>
+                
+                <div class="edit-row">
+                    <label>Аватар:</label>
+                    <div class="file-upload-block">
+                        <input type="file" id="avatar-file-input" accept="image/*">
+                        <p class="file-note">JPG або PNG. Розмір 100x100px.</p>
+                    </div>
+                </div>
+
+                <div class="edit-row">
+                    <label>Про себе:</label>
+                    <textarea id="bio-input"></textarea>
+                </div>
+
+                <button id="save-profile-btn" class="save-btn">Зберегти зміни</button>
+            </div>
+        </div>
+    </div>
+</main>
