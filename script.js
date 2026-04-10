@@ -289,30 +289,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Функція керування меню
 const initDropdown = () => {
+    // Шукаємо елементи саме в момент виклику
     const profileBtn = document.querySelector('.profile-preview');
     const dropdown = document.querySelector('.dropdown-content');
 
-    if (profileBtn && dropdown) {
-        // Видаляємо старі події, щоб не було дублів
-        profileBtn.onclick = null; 
-        
-        profileBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-        });
-
-        document.onclick = (e) => {
-            if (!profileBtn.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        };
+    // Якщо елементів немає (наприклад, юзер не залогінений), просто виходимо без помилок
+    if (!profileBtn || !dropdown) {
+        console.log("Dropdown elements not found - skipping init");
+        return;
     }
+
+    // Видаляємо старі обробники (про всяк випадок)
+    profileBtn.onclick = null;
+    
+    // Додаємо клік
+    profileBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Важливо, щоб клік не "спливав" до документа
+        dropdown.classList.toggle('show');
+    });
+
+    // Закриття при кліку будь-де
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('show');
+        }
+    });
 };
 
 // Запускаємо відразу і при зміні стану авторизації
 document.addEventListener('DOMContentLoaded', initDropdown);
-// Додай цей виклик також всередину onAuthStateChanged(auth, (user) => { ... })
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // ... твій код відображення профілю ...
+        
+        // Обов'язково викликаємо тут, бо елемент .profile-preview 
+        // часто з'являється динамічно після входу
+        setTimeout(initDropdown, 100); 
+    }
+});
 // щоб меню працювало після того, як юзер залогінився
 
 // ЗАПУСК ПРИ ЗАВАНТАЖЕННІ
