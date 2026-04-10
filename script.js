@@ -62,6 +62,7 @@ onAuthStateChanged(auth, (user) => {
     } else {
         if (authBtn) authBtn.style.display = "block";
         if (profileBlock) profileBlock.style.display = "none";
+        initDropdown();
     }
 });
 
@@ -292,24 +293,20 @@ const initDropdown = () => {
     const dropdown = document.querySelector('.dropdown-content');
 
     if (profileBtn && dropdown) {
-        // Очищуємо старі обробники, щоб не було дублів
-        profileBtn.onclick = null;
-
+        // Видаляємо старі події, щоб не було дублів
+        profileBtn.onclick = null; 
+        
         profileBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log("Клік по профілю!"); // Для перевірки в консолі (F12)
             dropdown.classList.toggle('show');
         });
 
-        // Закриття при кліку поза меню
-        document.addEventListener('click', (e) => {
+        document.onclick = (e) => {
             if (!profileBtn.contains(e.target)) {
                 dropdown.classList.remove('show');
             }
-        });
-    } else {
-        console.log("Елементи меню не знайдено на цій сторінці");
+        };
     }
 };
 
