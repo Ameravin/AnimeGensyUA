@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // 1. КОНФІГУРАЦІЯ FIREBASE (Твої ключі)
 const firebaseConfig = {
@@ -61,6 +62,46 @@ onAuthStateChanged(auth, (user) => {
     } else {
         if (authBtn) authBtn.style.display = "block";
         if (profileBlock) profileBlock.style.display = "none";
+    }
+});
+
+// Функція для збереження профілю
+const saveBtn = document.getElementById('save-profile-btn');
+if (saveBtn) {
+    saveBtn.onclick = async () => {
+        const user = auth.currentUser;
+        const newName = document.getElementById('display-name-input').value;
+        const newAvatar = document.getElementById('avatar-url-input').value;
+        const status = document.getElementById('save-status');
+
+        if (user) {
+            try {
+                await updateProfile(user, {
+                    displayName: newName,
+                    photoURL: newAvatar
+                });
+                
+                // Також можна зберегти "Bio" в LocalStorage для простоти зараз
+                localStorage.setItem(`bio_${user.uid}`, document.getElementById('bio-input').value);
+
+                status.style.display = "block";
+                setTimeout(() => status.style.display = "none", 3000);
+            } catch (error) {
+                alert("Помилка збереження: " + error.message);
+            }
+        }
+    };
+}
+
+// Заповнення полів даними при завантаженні сторінки профілю
+onAuthStateChanged(auth, (user) => {
+    if (user && window.location.pathname.includes('profile.html')) {
+        document.getElementById('display-name-input').value = user.displayName || "";
+        document.getElementById('avatar-url-input').value = user.photoURL || "";
+        document.getElementById('edit-avatar-preview').src = user.photoURL || "https://via.placeholder.com/100?text=?";
+        
+        const savedBio = localStorage.getItem(`bio_${user.uid}`);
+        if (savedBio) document.getElementById('bio-input').value = savedBio;
     }
 });
 
