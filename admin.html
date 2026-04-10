@@ -187,11 +187,11 @@
     </div>
 
 <script type="module">
-    // Додаємо імпорт Auth
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    // 1. Імпортуємо потрібні функції (якщо вони не імпортовані раніше)
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
-    // Твоя конфігурація (вона вже у тебе є, залиш як була)
+    // 2. Конфігурація (вона має бути такою ж, як у script.js)
     const firebaseConfig = {
         apiKey: "AIzaSyBRlTtULChSV0V8JlCRgzICqH6rR5neg4Y",
         authDomain: "animegensyua.firebaseapp.com",
@@ -204,19 +204,18 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // --- ПЕРЕВІРКА АДМІНА ---
-onAuthStateChanged(auth, (user) => {
-    const ADMIN_UID = "1mkKuWCJ5gQGOglP5L5JI5ueiB62"; // Твій ID вже тут
-    if (!user || user.uid !== ADMIN_UID) {
-        window.location.href = "index.html";
-    } else {
-        document.body.style.display = "block";
-            console.log("Єсть пробітіє!");
+    // 3. Твоя перевірка
+    onAuthStateChanged(auth, (user) => {
+        const ADMIN_UID = "1mkKuWCJ5gQGOglP5L5JI5ueiB62";
+        
+        if (user && user.uid === ADMIN_UID) {
+            console.log("Єсть пробітіє! Вітаю, Адмін.");
+            document.body.style.display = "block"; // Показуємо контент
+        } else {
+            console.log("Доступ заборонено. Редирект...");
+            window.location.href = "index.html";
         }
     });
-    // --- КІНЕЦЬ ПЕРЕВІРКИ ---
-
-    // Далі йде твій старий код (пошук аніме, форми тощо)...
 </script>
 
 
