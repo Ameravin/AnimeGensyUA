@@ -122,26 +122,6 @@ if (saveBtn) {
 }
 
 // Чекаємо завантаження сторінки
-document.addEventListener('DOMContentLoaded', () => {
-    const profileBtn = document.querySelector('.profile-preview');
-    const dropdown = document.querySelector('.dropdown-content');
-
-    if (profileBtn && dropdown) {
-        // Відкриваємо/закриваємо тільки по кліку
-        profileBtn.onclick = (e) => {
-            e.stopPropagation(); // Це важливо: клік не йде далі до документа
-            dropdown.classList.toggle('show');
-        };
-
-        // Закриваємо, якщо клікнули в будь-якому іншому місці
-        document.addEventListener('click', (e) => {
-            // Якщо клік був НЕ по меню і НЕ по кнопці профілю
-            if (!dropdown.contains(e.target) && !profileBtn.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-    }
-});
 
 // Заповнення полів даними при завантаженні сторінки профілю
 onAuthStateChanged(auth, (user) => {
@@ -170,25 +150,6 @@ onAuthStateChanged(auth, (user) => {
 
 // --- ЛОГІКА ВИСУВНОГО МЕНЮ ПО КЛІКУ ---
 
-document.addEventListener('DOMContentLoaded', () => {
-    const profilePreview = document.querySelector('.profile-preview');
-    const dropdownMenu = document.querySelector('.dropdown-content');
-
-    if (profilePreview && dropdownMenu) {
-        // 1. Відкриваємо/закриваємо по кліку на профіль
-        profilePreview.addEventListener('click', (e) => {
-            e.stopPropagation(); // Щоб клік не "спливав" до документа
-            dropdownMenu.classList.toggle('show');
-        });
-
-        // 2. Закриваємо меню, якщо клікнули будь-де за його межами
-        document.addEventListener('click', (e) => {
-            if (!profilePreview.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
-            }
-        });
-    }
-});
 
 // --- ЛОГІКА КОНТЕНТУ (Твій код) ---
 
@@ -304,6 +265,26 @@ if (searchInput) {
         }
     });
 }
+
+// Залиш ТІЛЬКИ ЦЕЙ блок для меню в кінці script.js
+document.addEventListener('DOMContentLoaded', () => {
+    const profileBtn = document.querySelector('.profile-preview');
+    const dropdown = document.querySelector('.dropdown-content');
+
+    if (profileBtn && dropdown) {
+        profileBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!profileBtn.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    }
+});
 
 // Функція керування меню
 const initDropdown = () => {
