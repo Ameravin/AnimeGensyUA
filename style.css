@@ -743,6 +743,132 @@ a {
     border: 1px solid #ccc;
     padding: 5px;
 }
+/* --- СТИЛІ ДЛЯ СТОРІНКИ ПРОФІЛЮ --- */
+.profile-container {
+    background: #fff; /* Білий фон самого кабінету, як на референсі */
+    color: #333;
+    margin-top: 30px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.profile-header-bar {
+    background: #f6f6f6;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    font-weight: bold;
+    color: #888;
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+.profile-header-bar span span {
+    color: #3498db; /* Синій нікнейм */
+}
+
+.profile-info-grid {
+    display: flex;
+    padding: 20px;
+    gap: 30px;
+}
+
+.profile-left-side {
+    text-align: center;
+    width: 120px;
+}
+
+.profile-avatar-container {
+    border: 1px solid #ccc;
+    padding: 5px;
+    background: #fff;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.profile-avatar-container img {
+    width: 100px;
+    height: 100px;
+    display: block;
+    object-fit: cover;
+}
+
+.status-indicator {
+    background: #95a5a6; /* Офлайн колір за замовчуванням */
+    color: white;
+    font-size: 11px;
+    padding: 3px 0;
+    margin-top: 5px;
+}
+
+.status-indicator.online {
+    background: #3498db; /* Синій онлайн */
+}
+
+/* Права частина з даними */
+.profile-right-side .info-row {
+    display: flex;
+    border-bottom: 1px dotted #ccc;
+    padding: 8px 0;
+    font-size: 14px;
+}
+
+.profile-right-side .info-row span {
+    width: 120px;
+    font-weight: bold;
+    color: #2ecc71; /* Зелений колір категорій, як на скріні */
+}
+
+.profile-right-side .info-row p {
+    margin: 0;
+    color: #555;
+}
+
+/* Кнопки */
+.edit-profile-trigger {
+    background: #ff7675;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+    margin-top: 10px;
+}
+
+.pm-btn {
+    background: #95a5a6;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* Секція редагування */
+.edit-section {
+    background: #fafafa;
+    border-top: 1px solid #ddd;
+}
+
+.edit-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.edit-row label {
+    width: 150px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.edit-row input, .edit-row textarea {
+    flex-grow: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
 
 .input-group textarea {
     height: 100px;
