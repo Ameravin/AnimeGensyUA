@@ -146,6 +146,28 @@ onAuthStateChanged(auth, (user) => {
     // ... твій інший код відображення імені та аватара
 });
 
+// --- ЛОГІКА ВИСУВНОГО МЕНЮ ПО КЛІКУ ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    const profilePreview = document.querySelector('.profile-preview');
+    const dropdownMenu = document.querySelector('.dropdown-content');
+
+    if (profilePreview && dropdownMenu) {
+        // 1. Відкриваємо/закриваємо по кліку на профіль
+        profilePreview.addEventListener('click', (e) => {
+            e.stopPropagation(); // Щоб клік не "спливав" до документа
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // 2. Закриваємо меню, якщо клікнули будь-де за його межами
+        document.addEventListener('click', (e) => {
+            if (!profilePreview.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+});
+
 // --- ЛОГІКА КОНТЕНТУ (Твій код) ---
 
 // 1. ЗАВАНТАЖЕННЯ ГОЛОВНОЇ СІТКИ (Index Page)
