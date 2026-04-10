@@ -3182,5 +3182,116 @@
         "url": "https://tortuga.tw/vod/87083"
       }
     ]
+  },
+
+  {
+    "id":4,
+    "title": "Гачіакута (1 Сезон)",
+    "episodes": "24",    
+    "genres": "Екшн, Пригода, Фентезі, Шьонен",
+    "year": "2025",
+    "studio": "Bones Film",
+    "image":"https://myanimelist.net/images/anime/1682/150432l.jpg",
+    "posterUrl": "https://myanimelist.net/images/anime/1682/150432l.jpg",
+    "description": "У нетрях населених нащадками колишніх злочинців, жив хлопець на ім'я Рудо, який заробляв на життя збиранням сміття. Його постійно цькували, а одного дня звинуватили в злочині, якого він не скоював і, зрештою, скинули до `Безодні` — місця, що вселяє жах у кожного.",
+
+    "playerUrl":[
+  {
+    "nr": 1,
+    "url": "https://tortuga.tw/vod/114739"
+  },
+  {
+    "nr": 2,
+    "url": "https://tortuga.tw/vod/114740"
+  },
+  {
+    "nr": 3,
+    "url": "https://tortuga.tw/vod/114741"
+  },
+  {
+    "nr": 4,
+    "url": "https://tortuga.tw/vod/114742"
+  },
+  {
+    "nr": 5,
+    "url": "https://tortuga.tw/vod/115476"
+  },
+  {
+    "nr": 6,
+    "url": "https://tortuga.tw/vod/115653"
+  },
+  {
+    "nr": 7,
+    "url": "https://tortuga.tw/vod/115871"
+  },
+  {
+    "nr": 8,
+    "url": "https://tortuga.tw/vod/116228"
+  },
+  {
+    "nr": 9,
+    "url": "https://tortuga.tw/vod/116702"
+  },
+  {
+    "nr": 10,
+    "url": "https://tortuga.tw/vod/117103"
+  },
+  {
+    "nr": 11,
+    "url": "https://tortuga.tw/vod/117583"
+  },
+  {
+    "nr": 12,
+    "url": "https://tortuga.tw/vod/117800"
+  },
+  {
+    "nr": 13,
+    "url": "https://tortuga.tw/vod/118175"
+  },
+  {
+    "nr": 14,
+    "url": "https://tortuga.tw/vod/118436"
+  },
+  {
+    "nr": 15,
+    "url": "https://tortuga.tw/vod/118854"
+  },
+  {
+    "nr": 16,
+    "url": "https://tortuga.tw/vod/118875"
+  },
+  {
+    "nr": 17,
+    "url": "https://tortuga.tw/vod/119127"
+  },
+  {
+    "nr": 18,
+    "url": "https://tortuga.tw/vod/119492"
+  },
+  {
+    "nr": 19,
+    "url": "https://tortuga.tw/vod/119822"
+  },
+  {
+    "nr": 20,
+    "url": "https://tortuga.tw/vod/119857"
+  },
+  {
+    "nr": 21,
+    "url": "https://tortuga.tw/vod/119975"
+  },
+  {
+    "nr": 22,
+    "url": "https://tortuga.tw/vod/120335"
+  },
+  {
+    "nr": 23,
+    "url": "https://tortuga.tw/vod/120538"
+  },
+  {
+    "nr": 24,
+    "url": "https://tortuga.tw/vod/120892"
+  }
+      ]
   }
 ]
