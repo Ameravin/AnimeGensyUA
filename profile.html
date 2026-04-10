@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мій профіль — AnimeUA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="profile-page">
+
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.html" class="logo-link"><div class="logo">Anime<span>UA</span></div></a>
+            <nav class="nav"><a href="index.html">На головну</a></nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="profile-edit-card">
+            <h1>Налаштування профілю</h1>
+            
+            <div class="avatar-setup">
+                <img id="edit-avatar-preview" src="https://via.placeholder.com/100?text=?" alt="Avatar">
+                <input type="text" id="avatar-url-input" placeholder="Посилання на нову аватарку (URL)">
+            </div>
+
+            <div class="input-group">
+                <label>Нікнейм</label>
+                <input type="text" id="display-name-input" placeholder="Твій нікнейм">
+            </div>
+
+            <div class="input-group">
+                <label>Про себе</label>
+                <textarea id="bio-input" placeholder="Розкажи щось про себе..."></textarea>
+            </div>
+
+            <button id="save-profile-btn" class="main-auth-btn">Зберегти зміни</button>
+            <p id="save-status" style="display:none; color: #4caf50; margin-top: 10px;">Зміни збережено!</p>
+        </div>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
