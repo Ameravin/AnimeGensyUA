@@ -192,33 +192,70 @@ a {
     object-fit: cover;
 }
 
+/* --- ОНОВЛЕНЕ ВИПАДАЮЧЕ МЕНЮ --- */
 .dropdown-content {
-    display: none;
+    display: none; /* Залишаємо так, JS керує відображенням */
     position: absolute;
-    top: 100%;
+    top: 100%; /* Точно під профілем */
     right: 0;
-    background-color: #222;
-    min-width: 180px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
-    border-radius: 8px;
-    z-index: 100;
-    margin-top: 10px;
-    padding: 5px 0;
+    
+    /* СТИЛЬОВІ ЗМІНИ */
+    background: #252525; /* Темніший, солідніший колір */
+    min-width: 200px; /* Трохи ширше */
+    border-radius: 12px; /* Більш закруглені кути */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); /* Глибока тінь */
+    border: 1px solid #3a3a3a; /* Тонка рамка */
+    z-index: 1000; /* Щоб було поверх усього */
+    
+    /* ФІКС: Прибираємо "прірву", додаємо "місток" */
+    margin-top: 0; 
+    padding: 8px 0; /* Внутрішні відступи */
+    
+    /* АНІМАЦІЯ ПОЯВИ (Опціонально, але красиво) */
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none; /* Щоб не заважало, коли сховане */
 }
 
 .dropdown-content a {
-    padding: 12px 16px;
-    display: block;
+    color: #eee; /* Світло-сірий колір тексту */
+    padding: 12px 20px;
+    text-decoration: none;
+    display: flex; /* Для іконок у майбутньому */
+    align-items: center;
+    gap: 10px;
     font-size: 14px;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
+/* Ефект при наведенні на пункт меню */
 .dropdown-content a:hover {
-    background-color: #333;
-    color: var(--accent-color);
+    background-color: #333; /* Світліший фон */
+    color: #fff; /* Білий текст */
+}
+
+.dropdown-content hr {
+    border: 0;
+    border-top: 1px solid #3a3a3a;
+    margin: 8px 0;
+}
+
+.dropdown-content a.logout {
+    color: #ff6b6b; /* Червонуватий колір */
+    font-weight: 500;
+}
+
+.dropdown-content a.logout:hover {
+    background-color: rgba(255, 107, 107, 0.1); /* Легкий червоний фон */
+    color: #ff4d4d;
 }
 
 .profile-preview:hover .dropdown-content {
     display: block;
+    opacity: 1;
+    transform: translateY(5px); /* Легкий зсув вниз */
+    pointer-events: auto; /* Активуємо посилання */
 }
 
 /* --- КАРТКИ (Фікс сітки та постерів) --- */
