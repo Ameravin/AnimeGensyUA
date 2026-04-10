@@ -1,11 +1,79 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+// 1. КОНФІГУРАЦІЯ FIREBASE (Твої ключі)
+const firebaseConfig = {
+  apiKey: "AIzaSyBRlTtULChSV0V8JlCRgzICqH6rR5neg4Y",
+  authDomain: "animegensyua.firebaseapp.com",
+  projectId: "animegensyua",
+  storageBucket: "animegensyua.firebasestorage.app",
+  messagingSenderId: "39273223584",
+  appId: "1:39273223584:web:802054de3c260ed76440c5",
+  measurementId: "G-ML2DDWLJ1E"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+// Елементи інтерфейсу (Авторизація)
+const authBtn = document.getElementById('auth-btn');
+const authModal = document.getElementById('auth-modal');
+const closeModal = document.querySelector('.close-modal');
+const profileBlock = document.getElementById('profile-block');
+const userAvatar = document.getElementById('user-avatar');
+const userName = document.getElementById('user-name');
+const logoutBtn = document.getElementById('logout-btn');
+
+// --- ЛОГІКА АВТОРИЗАЦІЇ ---
+
+if (authBtn) authBtn.onclick = () => authModal.style.display = "flex";
+if (closeModal) closeModal.onclick = () => authModal.style.display = "none";
+
+// Вхід через Google
+const btnGoogle = document.getElementById('btn-google');
+if (btnGoogle) {
+    btnGoogle.onclick = async () => {
+        try {
+            await signInWithPopup(auth, googleProvider);
+            authModal.style.display = "none";
+        } catch (error) {
+            console.error("Google Auth Error:", error);
+        }
+    };
+}
+
+// Вихід
+if (logoutBtn) {
+    logoutBtn.onclick = (e) => {
+        e.preventDefault();
+        signOut(auth);
+    };
+}
+
+// Стан користувача (Зберігається при перезавантаженні)
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        if (authBtn) authBtn.style.display = "none";
+        if (profileBlock) profileBlock.style.display = "flex";
+        if (userName) userName.innerText = user.displayName || user.email.split('@')[0];
+        if (userAvatar) userAvatar.src = user.photoURL || "https://via.placeholder.com/35";
+    } else {
+        if (authBtn) authBtn.style.display = "block";
+        if (profileBlock) profileBlock.style.display = "none";
+    }
+});
+
+// --- ЛОГІКА КОНТЕНТУ (Твій код) ---
+
 // 1. ЗАВАНТАЖЕННЯ ГОЛОВНОЇ СІТКИ (Index Page)
 async function loadMainGrid() {
+    const grid = document.getElementById('main-anime-grid');
+    if (!grid) return; 
+
     try {
         const response = await fetch('/api/anime');
         const data = await response.json();
-        const grid = document.getElementById('main-anime-grid');
-        
-        if (!grid) return; 
         grid.innerHTML = ''; 
 
         if (data.length === 0) {
@@ -16,8 +84,6 @@ async function loadMainGrid() {
         data.forEach((anime) => {
             const card = document.createElement('div');
             card.className = 'anime-card';
-            
-            // ФІКС: використовуємо posterUrl або image, якщо першого немає
             const poster = anime.posterUrl || anime.image || 'https://via.placeholder.com/200x300';
             
             card.innerHTML = `
@@ -35,7 +101,7 @@ async function loadMainGrid() {
             grid.appendChild(card);
         });
     } catch (error) {
-        console.error("Помилка завантаження головної сторінки:", error);
+        console.error("Помилка завантаження сітки:", error);
     }
 }
 
@@ -47,7 +113,6 @@ async function loadAnimePage() {
     if (!animeId || !episodesGrid) return;
 
     try {
-        // Отримуємо всі аніме і шукаємо потрібне (або через окремий API, якщо він є)
         const response = await fetch('/api/anime');
         const data = await response.json();
         const anime = data.find(item => item.id == animeId);
@@ -57,18 +122,15 @@ async function loadAnimePage() {
             return;
         }
 
-        // Заповнюємо дані
         document.getElementById('anime-title').innerText = anime.title;
         document.getElementById('anime-genres').innerText = anime.genres;
         document.getElementById('anime-poster').src = anime.posterUrl || anime.image;
-        document.getElementById('anime-year').innerText = anime.year || '2020';
-        document.getElementById('anime-studio').innerText = anime.studio || 'Невідомо';
         document.getElementById('anime-description').innerText = anime.description || 'Опис відсутній';
 
         const player = document.getElementById('main-player');
-        
-        // Обробка серій (якщо playerUrl це масив або рядок)
         let episodesArray = [];
+
+        // Парсимо серії
         if (typeof anime.playerUrl === 'string') {
             try {
                 episodesArray = JSON.parse(anime.playerUrl);
@@ -79,7 +141,6 @@ async function loadAnimePage() {
             episodesArray = anime.playerUrl;
         }
 
-        // Виведення кнопок серій
         episodesGrid.innerHTML = '';
         episodesArray.forEach((ep, index) => {
             const btn = document.createElement('button');
@@ -93,31 +154,32 @@ async function loadAnimePage() {
             episodesGrid.appendChild(btn);
         });
 
-        // Перша серія в плеєр за замовчуванням
-        if (episodesArray.length > 0) player.src = episodesArray[0].url;
+        if (episodesArray.length > 0 && player) player.src = episodesArray[0].url;
 
     } catch (error) {
-        console.error("Помилка:", error);
+        console.error("Помилка сторінки аніме:", error);
     }
 }
 
-// 3. ПОШУК (Фікс для випадаючого списку)
+// 3. ПОШУК
 const searchInput = document.getElementById('anime-search');
 if (searchInput) {
     searchInput.addEventListener('input', async (e) => {
         const query = e.target.value.toLowerCase();
         if (query.length < 2) return;
 
-        const response = await fetch('/api/anime');
-        const data = await response.json();
-        const filtered = data.filter(a => a.title.toLowerCase().includes(query));
-        
-        console.log("Знайдено аніме:", filtered.length);
-        // Тут можна додати малювання випадаючого списку, якщо він є в HTML
+        try {
+            const response = await fetch('/api/anime');
+            const data = await response.json();
+            const filtered = data.filter(a => a.title.toLowerCase().includes(query));
+            console.log("Знайдено:", filtered.length);
+        } catch (err) {
+            console.error("Помилка пошуку:", err);
+        }
     });
 }
 
-// ЗАПУСК
+// ЗАПУСК ПРИ ЗАВАНТАЖЕННІ
 document.addEventListener('DOMContentLoaded', () => {
     loadMainGrid();
     loadAnimePage();
