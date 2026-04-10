@@ -194,7 +194,7 @@ a {
 
 /* --- ОНОВЛЕНЕ ВИПАДАЮЧЕ МЕНЮ --- */
 .dropdown-content {
-    display: none; /* Міняємо на none */
+    display: none; 
     position: absolute;
     top: 100%;
     right: 0;
@@ -206,10 +206,18 @@ a {
     z-index: 1000;
     margin-top: 10px;
     padding: 8px 0;
+    
+    /* Прибираємо будь-яку реакцію на наведення */
+    pointer-events: none; 
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: translateY(10px);
 }
 .dropdown-content.show {
-    display: block;
-    animation: fadeIn 0.2s ease; /* Додамо легку анімацію появи */
+    display: block; /* Робимо видимим */
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto; /* Дозволяємо клікати по посиланнях всередині */
 }
 
 @keyframes fadeIn {
@@ -250,12 +258,6 @@ a {
     color: #ff4d4d;
 }
 
-.profile-preview:hover .dropdown-content {
-    display: block;
-    opacity: 1;
-    transform: translateY(5px); /* Легкий зсув вниз */
-    pointer-events: auto; /* Активуємо посилання */
-}
 
 /* --- КАРТКИ (Фікс сітки та постерів) --- */
 .anime-grid {
