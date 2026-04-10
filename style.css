@@ -614,6 +614,50 @@ a {
     align-items: center;
     gap: 20px; /* Відступ між дзвіночком та профілем */
 }
+.profile-edit-card {
+    background: #252525;
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 600px;
+    margin: 50px auto;
+    text-align: center;
+    border: 1px solid #333;
+}
+
+.avatar-setup img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 20px;
+    border: 3px solid var(--accent-color);
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    color: #aaa;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.input-group input, .input-group textarea {
+    width: 100%;
+    padding: 12px;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    color: white;
+    border-radius: 8px;
+}
+
+.input-group textarea {
+    height: 100px;
+    resize: none;
+}
 html {
     overflow-y: scroll; /* Завжди показувати смугу прокрутки */
     scrollbar-gutter: stable; /* Сучасний спосіб тримати контент стабільним */
