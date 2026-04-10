@@ -305,6 +305,38 @@ if (searchInput) {
     });
 }
 
+// Функція керування меню
+const initDropdown = () => {
+    const profileBtn = document.querySelector('.profile-preview');
+    const dropdown = document.querySelector('.dropdown-content');
+
+    if (profileBtn && dropdown) {
+        // Очищуємо старі обробники, щоб не було дублів
+        profileBtn.onclick = null;
+
+        profileBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log("Клік по профілю!"); // Для перевірки в консолі (F12)
+            dropdown.classList.toggle('show');
+        });
+
+        // Закриття при кліку поза меню
+        document.addEventListener('click', (e) => {
+            if (!profileBtn.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    } else {
+        console.log("Елементи меню не знайдено на цій сторінці");
+    }
+};
+
+// Запускаємо відразу і при зміні стану авторизації
+document.addEventListener('DOMContentLoaded', initDropdown);
+// Додай цей виклик також всередину onAuthStateChanged(auth, (user) => { ... })
+// щоб меню працювало після того, як юзер залогінився
+
 // ЗАПУСК ПРИ ЗАВАНТАЖЕННІ
 document.addEventListener('DOMContentLoaded', () => {
     loadMainGrid();
