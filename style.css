@@ -193,29 +193,31 @@ a {
 }
 
 /* --- ОНОВЛЕНЕ ВИПАДАЮЧЕ МЕНЮ --- */
+/* Базовий стан меню */
 .dropdown-content {
-    display: block; /* Завжди блок, але... */
-    visibility: hidden; /* ...невидимий */
-    opacity: 0;
-    pointer-events: none; /* Не реагує на мишу */
-    
+    display: block; /* Повинен бути block, щоб працювала анімація */
     position: absolute;
     top: 100%;
     right: 0;
-    background: #252525;
-    min-width: 200px;
-    border-radius: 12px;
-    border: 1px solid #3a3a3a;
+    background-color: var(--card-bg);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
     z-index: 1000;
-    transform: translateY(10px);
-    transition: all 0.2s ease;
+    border-radius: 8px;
+    margin-top: 10px;
+    border: 1px solid #333;
+    
+    /* Початковий стан для анімації */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
 }
 /* Коли додаємо клас .show через JS */
 .dropdown-content.show {
-    visibility: visible;
     opacity: 1;
+    visibility: visible;
     transform: translateY(0);
-    pointer-events: auto; /* Починає реагувати на кліки */
 }
 
 @keyframes fadeIn {
