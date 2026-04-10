@@ -289,29 +289,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Функція керування меню
 const initDropdown = () => {
-    // Шукаємо елементи саме в момент виклику
     const profileBtn = document.querySelector('.profile-preview');
     const dropdown = document.querySelector('.dropdown-content');
 
-    // Якщо елементів немає (наприклад, юзер не залогінений), просто виходимо без помилок
-    if (!profileBtn || !dropdown) {
-        console.log("Dropdown elements not found - skipping init");
-        return;
-    }
+    if (!profileBtn || !dropdown) return;
 
-    // Видаляємо старі обробники (про всяк випадок)
+    // Очищуємо старі обробники
     profileBtn.onclick = null;
     
-    // Додаємо клік
     profileBtn.addEventListener('click', (e) => {
+        // ВАЖЛИВО: Якщо ми натиснули на посилання ВСЕРЕДИНІ дропдауну, 
+        // дозволяємо браузеру перейти за посиланням і нічого не зупиняємо
+        if (e.target.closest('.dropdown-content a')) {
+            return; 
+        }
+
+        // Якщо натиснули на сам аватар або нік — відкриваємо/закриваємо меню
         e.preventDefault();
-        e.stopPropagation(); // Важливо, щоб клік не "спливав" до документа
+        e.stopPropagation();
         dropdown.classList.toggle('show');
     });
 
-    // Закриття при кліку будь-де
+    // Закриття при кліку поза межами меню
     document.addEventListener('click', (e) => {
-        if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+        if (!profileBtn.contains(e.target)) {
             dropdown.classList.remove('show');
         }
     });
