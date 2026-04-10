@@ -1,0 +1,588 @@
+/* --- ЗМІННІ ТА БАЗОВІ СТИЛІ --- */
+:root {
+    --bg-color: #1a1a1a;
+    --card-bg: #252525;
+    --accent-color: #3498db;
+    --text-color: #ffffff;
+    --text-muted: #aaaaaa;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- ГЛОБАЛЬНИЙ ФІКС ПОСИЛАНЬ (щоб не були синіми) --- */
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: 0.3s;
+}
+.icon-link {
+    font-size: 22px !important; /* Фіксуємо розмір */
+    line-height: 1;            /* Прибираємо зайві відступи по висоті */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;               /* Фіксована ширина контейнера іконки */
+    height: 24px;              /* Фіксована висота контейнера іконки */
+}
+.icon-link:hover {
+    transform: scale(1.1);
+}
+
+/* --- HEADER (Виправляємо логотип та меню) --- */
+.header {
+    background-color: #111;
+    padding: 10px 0;
+    border-bottom: 2px solid var(--accent-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    /* justify-content не потрібен, бо ми використовуємо flex-grow */
+}
+
+/* --- ЛОГОТИП: НЕОНОВЕ СВІТІННЯ --- */
+.logo {
+    font-size: 28px; /* Трохи більший розмір */
+    font-weight: 800; /* Максимальна жирність */
+    text-transform: uppercase;
+    color: #fff;
+    letter-spacing: 1px; /* Відступ між літерами */
+    transition: 0.3s ease; /* Плавний перехід для ховера */
+    /* Тінь для білих літер, щоб вони не зливалися */
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.logo span {
+    color: var(--accent-color);
+    /* Ефект неону для синьої частини */
+    text-shadow: 
+        0 0 5px var(--accent-color),
+        0 0 10px var(--accent-color),
+        0 0 20px rgba(52, 152, 219, 0.5); /* Напівпрозоре зовнішнє світіння */
+}
+.logo-link {
+    text-decoration: none;
+    margin-right: 50px; /* ВІДСТАНЬ ВІД ЛОГО ДО КНОПОК МЕНЮ */
+}
+.logo-link:hover .logo {
+    transform: translateY(-2px); /* Легке підняття */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+.logo-link:hover .logo span {
+    text-shadow: 
+        0 0 10px var(--accent-color),
+        0 0 20px var(--accent-color),
+        0 0 40px var(--accent-color); /* Посилення світіння */
+}
+@keyframes pulse-neon {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+}
+.logo-link:hover .logo span {
+    animation: pulse-neon 1.5s infinite ease-in-out;
+}
+
+.nav {
+    display: flex;
+    gap: 25px;
+    margin-right: 30px; /* Відступ від меню до пошуку */
+}
+.nav a {
+    color: #fff;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.nav a.active, .nav a:hover {
+    color: var(--accent-color);
+}
+
+/* --- ПОШУК (Фікс відступів) --- */
+.search-box {
+    flex-grow: 1; /* Це "виштовхує" профіль вправо */
+    max-width: 350px;
+    display: flex;
+    background: #2a2a2a;
+    border-radius: 20px;
+    padding: 5px 15px;
+    align-items: center;
+    margin-right: auto; /* Додатковий фікс для виштовхування */
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    outline: none;
+    padding: 5px 0;
+}
+.search-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+/* --- ПРОФІЛЬ ТА ВИПАДАЮЧЕ МЕНЮ (Фікс зламаного вигляду) --- */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-left: 20px;
+}
+.username {
+    font-size: 14px;
+    font-weight: 500;
+}
+.notifications {
+    position: relative;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+}
+.notifications .badge {
+    position: absolute;
+    top: -5px !important;      /* Підкоригуй це значення під свій зір */
+    right: -5px !important;
+    background: #e74c3c;
+    color: white;
+    font-size: 10px;
+    min-width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border: 2px solid #111;
+}
+
+.profile-preview {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-color);
+    object-fit: cover;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #222;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
+    border-radius: 8px;
+    z-index: 100;
+    margin-top: 10px;
+    padding: 5px 0;
+}
+
+.dropdown-content a {
+    padding: 12px 16px;
+    display: block;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background-color: #333;
+    color: var(--accent-color);
+}
+
+.profile-preview:hover .dropdown-content {
+    display: block;
+}
+
+/* --- КАРТКИ (Фікс сітки та постерів) --- */
+.anime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
+    padding-bottom: 40px;
+}
+
+.anime-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.anime-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+.anime-info-layout {
+    display: flex;
+    gap: 30px;
+    background: #222; /* Темний фон блоку */
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border-left: 5px solid var(--accent-color); /* Синя лінія зліва для стилю */
+}
+
+/* Постер */
+.anime-poster-side {
+    flex-shrink: 0;
+    width: 250px;
+    aspect-ratio: 2 / 3; /* Додай це сюди теж */
+    position: relative;
+    background: #222;
+    border-radius: 10px;
+}
+
+.anime-poster-side img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.status-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--accent-color);
+    padding: 4px 12px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Деталі */
+.anime-details-side {
+    flex-grow: 1;
+}
+
+.main-title {
+    margin-top: 0;
+    font-size: 28px;
+    color: #fff;
+    border-bottom: 1px solid #444;
+    padding-bottom: 15px;
+}
+
+.info-list {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    font-size: 15px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+}
+
+.info-item span {
+    color: var(--accent-color); /* Сині назви категорій */
+    font-weight: bold;
+    width: 120px;
+}
+
+.info-item p {
+    margin: 0;
+    color: #eee;
+}
+
+/* Опис */
+.anime-description-block h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+}
+
+.anime-description-block p {
+    line-height: 1.6;
+    color: #ccc;
+    font-size: 14px;
+}
+
+/* Адаптивність для телефонів */
+@media (max-width: 768px) {
+    .anime-info-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+    .anime-poster-side { width: 200px; }
+}
+.poster {
+    position: relative;
+    width: 100%;
+    /* Жорстко фіксуємо пропорції 2:3 */
+    aspect-ratio: 2 / 3; 
+    background-color: #2a2a2a; /* Фон-заглушка */
+    border-radius: 8px;
+    overflow: hidden;
+    /* Це важливо: резервуємо місце */
+    display: block; 
+}
+
+.poster img {
+    width: 100%;
+    height: 100%;
+    /* Змушуємо картинку заповнити блок без деформації */
+    object-fit: cover; 
+    /* Додаємо плавність, щоб не було різкого блимкання */
+    transition: opacity 0.3s ease;
+}
+
+.info { padding: 12px; }
+
+.title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- ПЛЕЄР (Щоб не було чорного екрану) --- */
+.player-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #333;
+    margin: 20px 0;
+}
+
+#main-player {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+/* Робимо контейнер постера відправною точкою для позиціонування */
+.poster {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3; /* Чітко задаємо пропорції */
+    overflow: hidden;
+    border-radius: 8px;
+    background: #111; /* Темний фон, поки вантажиться фото */
+}
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: #e74c3c; /* Твій червоний колір */
+    color: white;
+    font-size: 11px;
+    min-width: 16px;
+    height: 16px;
+    padding: 2px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border: 2px solid #111; /* Контур, щоб не зливалося з фоном */
+}
+.badge:empty {
+    display: none;
+}
+/* Стилі для самого лічильника серій */
+.episodes-badge {
+    position: absolute;
+    bottom: 10px;      /* Відступ від нижнього краю картинки */
+    left: 10px;        /* Відступ від лівого краю картинки */
+    background: rgba(0, 0, 0, 0.8); /* Чорний напівпрозорий фон */
+    color: #fff;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 4px;
+    border-bottom: 2px solid var(--accent-color); /* Синя смужка знизу */
+    z-index: 2;        /* Щоб цифра була поверх картинки */
+}
+.header-left {
+    display: flex;
+    align-items: center;
+    /* Це дозволяє лівій частині бути основою, а правій — притиснутися до краю */
+    flex-grow: 1; 
+}
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    flex-shrink: 0; /* Щоб профіль не зтискався */
+}
+/* --- КОМЕНТАРІ --- */
+.comments-section {
+    margin-top: 50px;
+    background: #222;
+    padding: 30px;
+    border-radius: 15px;
+}
+
+.comment-form-box {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.user-avatar-mini img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-color);
+}
+
+.form-inputs {
+    flex-grow: 1;
+}
+
+#comment-input {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: white;
+    padding: 12px;
+    min-height: 80px;
+    resize: vertical;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+#comment-input:focus {
+    border-color: var(--accent-color);
+}
+
+.send-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    float: right;
+    transition: 0.3s;
+}
+
+.send-btn:hover {
+    background: #2980b9;
+}
+
+/* Список коментарів */
+.comment-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.comm-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comm-header {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.comm-author {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.comm-date {
+    font-size: 12px;
+    color: #777;
+}
+
+.comm-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #ddd;
+}
+.episodes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.range-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.range-btn {
+    background: #1a1a1a;
+    color: #888;
+    border: 1px solid #333;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.range-btn.active {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.range-btn:hover:not(.active) {
+    border-color: var(--accent-color);
+    color: white;
+}
+.header-content .user-menu {
+    margin-left: auto !important; 
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Відступ між дзвіночком та профілем */
+}
+html {
+    overflow-y: scroll; /* Завжди показувати смугу прокрутки */
+    scrollbar-gutter: stable; /* Сучасний спосіб тримати контент стабільним */
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}

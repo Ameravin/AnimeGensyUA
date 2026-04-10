@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Перегляд аніме — AnimeUA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .page-anime { padding-top: 40px; }
+        
+        .player-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.1);
+        }
+        .player-wrapper iframe { width: 100%; height: 100%; border: none; }
+        
+        .range-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+        .range-btn {
+            background: #1a1a1a; color: #888; border: 1px solid #333;
+            padding: 5px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s;
+        }
+        .range-btn.active { 
+            background: var(--accent-color); 
+            color: white; 
+            border-color: var(--accent-color);
+        }
+
+        .episodes-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; margin-bottom: 40px; }
+        .ep-btn {
+            background: #2a2a2a; color: white; border: 1px solid #333;
+            padding: 10px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .ep-btn:hover { border-color: var(--accent-color); }
+        .ep-btn.active { 
+            background: var(--accent-color) !important; 
+            border-color: var(--accent-color); 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="container header-content">
+        <a href="index.html" class="logo-link">
+            <div class="logo">Anime<span>UA</span></div>
+        </a>
+        <nav class="nav">
+            <a href="index.html">Головна</a>
+            <a href="#">Топ 100</a>
+            <a href="#">Онгоїнги</a>
+        </nav>
+        
+        <div class="user-menu">
+            <div class="notifications">
+                <span class="icon-link">🔔</span>
+                <span id="notif-badge" class="badge" style="display: none;">0</span> 
+            </div>
+            
+            <div class="profile-preview">
+                <img src="https://via.placeholder.com/35" alt="Avatar" class="avatar">
+                <span class="username">Профіль</span>
+                <div class="dropdown-content">
+                    <a href="#">Мій кабінет</a>
+                    <a href="admin.html">Адмін-панель</a>
+                    <hr>
+                    <a href="#">Вихід</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container page-anime">
+    <section class="anime-info-layout">
+        <div class="anime-poster-side">
+            <img id="anime-poster" src="" alt="Постер">
+        </div>
+        <div class="anime-details-side">
+            <h1 id="anime-title" class="main-title">Завантаження...</h1>
+            <div class="info-list">
+                <div class="info-item"><span>Рік виходу:</span> <p id="anime-year">-</p></div>
+                <div class="info-item"><span>Жанр:</span> <p id="anime-genres">-</p></div>
+                <div class="info-item"><span>Студія:</span> <p id="anime-studio">-</p></div>
+            </div>
+            <div class="anime-description-block">
+                <h3>Про що аніме?</h3>
+                <p id="anime-description">Опис завантажується...</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="player-wrapper">
+        <iframe id="main-player" src="" allowfullscreen></iframe>
+    </div>
+
+    <section class="episodes-section">
+        <div class="episodes-header">
+            <h3>Вибір серії:</h3>
+            <div id="episodes-range-selector" class="range-selector"></div>
+        </div>
+        <div class="episodes-grid" id="episodes-list"></div>
+    </section>
+
+    <section class="comments-section">
+        <h3 class="section-title">Обговорення</h3>
+        <div class="comment-form-box">
+            <div class="user-avatar-mini">
+                <img src="https://via.placeholder.com/50" alt="Avatar">
+            </div>
+            <div class="form-inputs">
+                <textarea id="comment-input" placeholder="Поділіться враженнями..."></textarea>
+                <button class="send-btn" id="submit-comment">Відправити</button>
+            </div>
+        </div>
+        <div id="comments-list">
+            <p style="text-align: center; color: #666; padding: 20px;">Коментарів поки немає. Станьте першим!</p>
+        </div>
+    </section>
+</main>
+
+<script>
+    const RANGE_SIZE = 100;
+    const urlParams = new URLSearchParams(window.location.search);
+    const animeId = urlParams.get('id');
+
+    async function loadAnimeDetails() {
+        if (!animeId) return;
+
+        try {
+            // Отримуємо дані з нашого сервера
+            const response = await fetch('/api/anime');
+            const data = await response.json();
+            const anime = data.find(item => item.id == animeId);
+
+            if (!anime) {
+                document.getElementById('anime-title').innerText = "Аніме не знайдено";
+                return;
+            }
+
+            // Заповнюємо контент
+            document.getElementById('anime-title').innerText = anime.title;
+            document.getElementById('anime-genres').innerText = anime.genres;
+            document.getElementById('anime-poster').src = anime.posterUrl || anime.image;
+            document.getElementById('anime-year').innerText = anime.year || '2024';
+            document.getElementById('anime-studio').innerText = anime.studio || 'Невідомо';
+            document.getElementById('anime-description').innerText = anime.description;
+
+            const player = document.getElementById('main-player');
+            const epGrid = document.getElementById('episodes-list');
+            const rangeSelector = document.getElementById('episodes-range-selector');
+
+            // Обробка серій (якщо це масив або рядок JSON)
+            let episodesArray = [];
+            if (Array.isArray(anime.playerUrl)) {
+                episodesArray = anime.playerUrl;
+            } else if (typeof anime.playerUrl === 'string') {
+                try {
+                    episodesArray = JSON.parse(anime.playerUrl);
+                } catch(e) {
+                    episodesArray = [{ nr: 1, url: anime.playerUrl }];
+                }
+            }
+
+            function displayEpisodes(subset) {
+                epGrid.innerHTML = '';
+                subset.forEach(ep => {
+                    const btn = document.createElement('button');
+                    btn.className = 'ep-btn';
+                    if (player.src === ep.url) btn.classList.add('active');
+                    btn.innerText = `${ep.nr} серія`;
+                    btn.onclick = () => {
+                        player.src = ep.url;
+                        document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    };
+                    epGrid.appendChild(btn);
+                });
+            }
+
+            // Рендер діапазонів
+            if (episodesArray.length > RANGE_SIZE) {
+                const totalRanges = Math.ceil(episodesArray.length / RANGE_SIZE);
+                for (let i = 0; i < totalRanges; i++) {
+                    const start = i * RANGE_SIZE;
+                    const end = Math.min(start + RANGE_SIZE, episodesArray.length);
+                    const btn = document.createElement('button');
+                    btn.className = 'range-btn' + (i === 0 ? ' active' : '');
+                    btn.innerText = `${start + 1}-${end}`;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        displayEpisodes(episodesArray.slice(start, end));
+                    };
+                    rangeSelector.appendChild(btn);
+                }
+                displayEpisodes(episodesArray.slice(0, RANGE_SIZE));
+            } else {
+                displayEpisodes(episodesArray);
+            }
+
+            if (episodesArray.length > 0) player.src = episodesArray[0].url;
+
+        } catch (error) {
+            console.error("Помилка:", error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAnimeDetails);
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeUA — Головна сторінка</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+    <div class="container header-content">
+        <a href="index.html" class="logo-link">
+            <div class="logo">Anime<span>UA</span></div>
+        </a>
+
+        <nav class="nav">
+            <a href="index.html" class="active">Головна</a>
+            <a href="#">Топ 100</a>
+            <a href="#">Онгоїнги</a>
+        </nav>
+
+        <div class="search-box">
+            <input type="text" placeholder="Пошук аніме..." id="anime-search">
+            <button class="search-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="user-menu">
+<div class="notifications">
+    <span class="icon">🔔</span>
+    <span id="notif-badge" class="badge" style="display: none;">0</span>
+</div>
+            <div class="profile-preview">
+                <img src="https://via.placeholder.com/35" alt="Avatar" class="avatar">
+                <span class="username">Профіль</span>
+                <div class="dropdown-content">
+    <a href="#">Мій кабінет</a>
+    <a href="#">Закладки</a>
+    <a href="admin.html" style="color: var(--accent-color);">Адмін-панель</a> <hr>
+    <a href="#" class="logout">Вихід</a>
+</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <main class="container">
+        <h2 class="section-title">Останні оновлення</h2>
+        
+        <div class="anime-grid" id="main-anime-grid">
+            <div class="anime-card">
+                <div class="poster"><img src="https://via.placeholder.com/200x300" alt="loading"></div>
+                <div class="info"><div class="title">Завантаження...</div></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
