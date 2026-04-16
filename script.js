@@ -1,8 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signOut,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// 1. КОНФІГУРАЦІЯ FIREBASE (Твої ключі)
+// =========================
+// FIREBASE CONFIG
+// =========================
 const firebaseConfig = {
   apiKey: "AIzaSyBRlTtULChSV0V8JlCRgzICqH6rR5neg4Y",
   authDomain: "animegensyua.firebaseapp.com",
@@ -13,327 +21,488 @@ const firebaseConfig = {
   measurementId: "G-ML2DDWLJ1E"
 };
 
+const ADMIN_UID = "1mkKuWCJ5gQGOglP5L5JI5ueiB62";
+const IMGBB_API_KEY = "639434d76b34da4071bc50f6a9171a3e";
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Елементи інтерфейсу (Авторизація)
-const authBtn = document.getElementById('auth-btn');
-const authModal = document.getElementById('auth-modal');
-const closeModal = document.querySelector('.close-modal');
-const profileBlock = document.getElementById('profile-block');
-const userAvatar = document.getElementById('user-avatar');
-const userName = document.getElementById('user-name');
-const logoutBtn = document.getElementById('logout-btn');
-
-// --- ЛОГІКА АВТОРИЗАЦІЇ ---
-
-if (authBtn) authBtn.onclick = () => authModal.style.display = "flex";
-if (closeModal) closeModal.onclick = () => authModal.style.display = "none";
-
-// Вхід через Google
-const btnGoogle = document.getElementById('btn-google');
-if (btnGoogle) {
-    btnGoogle.onclick = async () => {
-        try {
-            await signInWithPopup(auth, googleProvider);
-            authModal.style.display = "none";
-        } catch (error) {
-            console.error("Google Auth Error:", error);
-        }
-    };
+// =========================
+// HELPERS
+// =========================
+function $(selector, root = document) {
+  return root.querySelector(selector);
 }
 
-// Вихід
-if (logoutBtn) {
-    logoutBtn.onclick = (e) => {
-        e.preventDefault();
-        signOut(auth);
-    };
+function $all(selector, root = document) {
+  return Array.from(root.querySelectorAll(selector));
 }
 
-// Стан користувача (Зберігається при перезавантаженні)
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (authBtn) authBtn.style.display = "none";
-        if (profileBlock) profileBlock.style.display = "flex";
-        if (userName) userName.innerText = user.displayName || user.email.split('@')[0];
-        if (userAvatar) userAvatar.src = user.photoURL || "https://via.placeholder.com/35";
-    } else {
-        if (authBtn) authBtn.style.display = "block";
-        if (profileBlock) profileBlock.style.display = "none";
-        initDropdown();
+function getCurrentPage() {
+  return window.location.pathname.split("/").pop() || "index.html";
+}
+
+function isIndexPage() {
+  const page = getCurrentPage();
+  return page === "index.html" || page === "" || page === "/";
+}
+
+function isAnimePage() {
+  return getCurrentPage().includes("anime-page.html");
+}
+
+function isProfilePage() {
+  return getCurrentPage().includes("profile.html");
+}
+
+function getSavedBio(uid) {
+  return localStorage.getItem(`bio_${uid}`) || "";
+}
+
+function setSavedBio(uid, value) {
+  localStorage.setItem(`bio_${uid}`, value || "");
+}
+
+function safeName(user) {
+  return user?.displayName || user?.email?.split("@")[0] || "Користувач";
+}
+
+// =========================
+// AUTH MODAL
+// =========================
+function bindAuthModal() {
+  const authBtn = $("#auth-btn");
+  const authModal = $("#auth-modal");
+  const closeModal = $(".close-modal");
+  const btnGoogle = $("#btn-google");
+
+  if (authBtn && authModal) {
+    authBtn.addEventListener("click", () => {
+      authModal.style.display = "flex";
+    });
+  }
+
+  if (closeModal && authModal) {
+    closeModal.addEventListener("click", () => {
+      authModal.style.display = "none";
+    });
+  }
+
+  if (authModal) {
+    authModal.addEventListener("click", (e) => {
+      if (e.target === authModal) authModal.style.display = "none";
+    });
+  }
+
+  if (btnGoogle) {
+    btnGoogle.addEventListener("click", async () => {
+      try {
+        await signInWithPopup(auth, googleProvider);
+        if (authModal) authModal.style.display = "none";
+      } catch (error) {
+        console.error("Google Auth Error:", error);
+        alert("Не вдалося увійти через Google.");
+      }
+    });
+  }
+}
+
+function bindLogout() {
+  const logoutBtn = $("#logout-btn");
+  if (!logoutBtn) return;
+
+  logoutBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout error:", error);
     }
-});
+  });
+}
 
-// Функція для збереження профілю
-const saveBtn = document.getElementById('save-profile-btn');
-if (saveBtn) {
-    saveBtn.onclick = async () => {
-        const user = auth.currentUser;
-        if (!user) return;
+// =========================
+// DROPDOWN
+// =========================
+let dropdownBound = false;
 
-        const fileInput = document.getElementById('avatar-file-input');
-        const newName = document.getElementById('display-name-input').value;
-        const status = document.getElementById('save-status');
-        
-        // !!! ВСТАВ СВІЙ КЛЮЧ ТУТ !!!
-        const IMGBB_API_KEY = '639434d76b34da4071bc50f6a9171a3e'; 
+function closeAllDropdowns() {
+  $all(".dropdown-content").forEach((menu) => menu.classList.remove("show"));
+}
 
-        try {
-            let photoURL = user.photoURL;
+function bindDropdowns() {
+  if (dropdownBound) return;
 
-            // Якщо вибрано новий файл — вантажимо на ImgBB
-            if (fileInput && fileInput.files[0]) {
-                const formData = new FormData();
-                formData.append('image', fileInput.files[0]);
+  const profileBlocks = $all(".profile-preview");
+  if (!profileBlocks.length) return;
 
-                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                    method: 'POST',
-                    body: formData
-                });
+  dropdownBound = true;
 
-                const imgbbData = await imgbbResponse.json();
-                if (imgbbData.success) {
-                    photoURL = imgbbData.data.url;
-                } else {
-                    throw new Error("ImgBB upload failed");
-                }
+  profileBlocks.forEach((profileBtn) => {
+    const dropdown = $(".dropdown-content", profileBtn);
+    if (!dropdown) return;
+
+    profileBtn.addEventListener("click", (e) => {
+      const clickedLink = e.target.closest(".dropdown-content a");
+      if (clickedLink) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const isOpen = dropdown.classList.contains("show");
+      closeAllDropdowns();
+      if (!isOpen) dropdown.classList.add("show");
+    });
+  });
+
+  document.addEventListener("click", () => {
+    closeAllDropdowns();
+  });
+}
+
+// =========================
+// AUTH UI RENDER
+// =========================
+function renderAuthUI(user) {
+  const authBtn = $("#auth-btn");
+  const profileBlock = $("#profile-block");
+  const userAvatarTargets = $all("#user-avatar, .profile-preview img.avatar");
+  const userNameTargets = $all("#user-name, .profile-preview .username");
+  const adminLinks = $all('a[href="admin.html"]');
+
+  if (user) {
+    if (authBtn) authBtn.style.display = "none";
+    if (profileBlock) profileBlock.style.display = "flex";
+
+    const name = safeName(user);
+    userNameTargets.forEach((el) => (el.textContent = name));
+    userAvatarTargets.forEach((el) => {
+      el.src = user.photoURL || "https://via.placeholder.com/35";
+    });
+  } else {
+    if (authBtn) authBtn.style.display = "block";
+    if (profileBlock) profileBlock.style.display = "none";
+
+    userNameTargets.forEach((el) => (el.textContent = "Профіль"));
+    userAvatarTargets.forEach((el) => {
+      el.src = "https://via.placeholder.com/35";
+    });
+  }
+
+  adminLinks.forEach((link) => {
+    link.style.display = user && user.uid === ADMIN_UID ? "block" : "none";
+  });
+}
+
+// =========================
+// PROFILE PAGE
+// =========================
+function renderProfilePage(user) {
+  if (!isProfilePage()) return;
+
+  const profileTitle = $("#profile-title-name");
+  const infoDisplayName = $("#info-display-name");
+  const infoBioDisplay = $("#info-bio-display");
+  const avatarPreview = $("#edit-avatar-preview");
+  const displayNameInput = $("#display-name-input");
+  const bioInput = $("#bio-input");
+  const statusIndicator = $(".status-indicator");
+
+  if (!user) {
+    if (profileTitle) profileTitle.textContent = "Гість";
+    if (infoDisplayName) infoDisplayName.textContent = "Гість";
+    if (infoBioDisplay) infoBioDisplay.textContent = "Увійдіть, щоб бачити та редагувати профіль.";
+    if (avatarPreview) avatarPreview.src = "https://via.placeholder.com/100?text=?";
+    if (displayNameInput) displayNameInput.value = "";
+    if (bioInput) bioInput.value = "";
+    if (statusIndicator) statusIndicator.textContent = "OFFLINE";
+    return;
+  }
+
+  const name = safeName(user);
+  const bio = getSavedBio(user.uid);
+
+  if (profileTitle) profileTitle.textContent = name;
+  if (infoDisplayName) infoDisplayName.textContent = name;
+  if (infoBioDisplay) infoBioDisplay.textContent = bio || "Напишіть щось про себе...";
+  if (avatarPreview) avatarPreview.src = user.photoURL || "https://via.placeholder.com/100?text=?";
+  if (displayNameInput) displayNameInput.value = user.displayName || "";
+  if (bioInput) bioInput.value = bio;
+  if (statusIndicator) statusIndicator.textContent = "ОНЛАЙН";
+}
+
+function bindProfileEditor() {
+  const toggleBtn = $("#toggle-edit-btn");
+  const editSection = $("#edit-section");
+  const avatarFileInput = $("#avatar-file-input");
+  const avatarPreview = $("#edit-avatar-preview");
+  const saveBtn = $("#save-profile-btn");
+  const bioInput = $("#bio-input");
+  const displayNameInput = $("#display-name-input");
+  const saveStatus = $("#save-status");
+
+  if (toggleBtn && editSection) {
+    toggleBtn.addEventListener("click", () => {
+      const isHidden = getComputedStyle(editSection).display === "none";
+      editSection.style.display = isHidden ? "block" : "none";
+    });
+  }
+
+  if (avatarFileInput && avatarPreview) {
+    avatarFileInput.addEventListener("change", () => {
+      const file = avatarFileInput.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        avatarPreview.src = e.target?.result || avatarPreview.src;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (saveBtn) {
+    saveBtn.addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("Спочатку увійдіть у акаунт.");
+        return;
+      }
+
+      const newName = displayNameInput ? displayNameInput.value.trim() : "";
+      const newBio = bioInput ? bioInput.value.trim() : "";
+      const file = avatarFileInput?.files?.[0] || null;
+
+      try {
+        let photoURL = user.photoURL || "";
+
+        if (file) {
+          const formData = new FormData();
+          formData.append("image", file);
+
+          const response = await fetch(
+            `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+            {
+              method: "POST",
+              body: formData
             }
+          );
 
-            // Оновлюємо Firebase профіль
-            await updateProfile(user, {
-                displayName: newName,
-                photoURL: photoURL
-            });
+          const data = await response.json();
+          if (!data?.success || !data?.data?.url) {
+            throw new Error("ImgBB upload failed");
+          }
 
-            // Зберігаємо біо в LocalStorage
-            const bioText = document.getElementById('bio-input').value;
-            localStorage.setItem(`bio_${user.uid}`, bioText);
-
-            if (status) status.style.display = "block";
-            alert("Зміни збережено!");
-            location.reload(); 
-
-        } catch (error) {
-            console.error("Помилка оновлення:", error);
-            alert("Сталася помилка при збереженні.");
+          photoURL = data.data.url;
         }
-    };
+
+        await updateProfile(user, {
+          displayName: newName || user.displayName || "",
+          photoURL: photoURL || user.photoURL || ""
+        });
+
+        setSavedBio(user.uid, newBio);
+
+        if (saveStatus) {
+          saveStatus.style.display = "block";
+          saveStatus.textContent = "Зміни збережено!";
+        }
+
+        renderProfilePage(auth.currentUser);
+        renderAuthUI(auth.currentUser);
+
+        alert("Зміни збережено!");
+      } catch (error) {
+        console.error("Помилка оновлення профілю:", error);
+        alert("Сталася помилка при збереженні.");
+      }
+    });
+  }
 }
 
-// Чекаємо завантаження сторінки
+// =========================
+// MAIN PAGE
+// =========================
+let animeCache = [];
 
-// Заповнення полів даними при завантаженні сторінки профілю
-onAuthStateChanged(auth, (user) => {
-    if (user && window.location.pathname.includes('profile.html')) {
-        document.getElementById('display-name-input').value = user.displayName || "";
-        document.getElementById('avatar-url-input').value = user.photoURL || "";
-        document.getElementById('edit-avatar-preview').src = user.photoURL || "https://via.placeholder.com/100?text=?";
-        
-        const savedBio = localStorage.getItem(`bio_${user.uid}`);
-        if (savedBio) document.getElementById('bio-input').value = savedBio;
-    }
-});
+function renderAnimeCards(data) {
+  const grid = $("#main-anime-grid");
+  if (!grid) return;
 
-onAuthStateChanged(auth, (user) => {
-    const adminLink = document.querySelector('a[href="admin.html"]'); // Шукаємо посилання в меню
-    const ADMIN_UID = "1mkKuWCJ5gQGOglP5L5JI5ueiB62";
+  grid.innerHTML = "";
 
-    if (user && user.uid === ADMIN_UID) {
-        if (adminLink) adminLink.style.display = "block"; // Показуємо адмінку тільки тобі
-    } else {
-        if (adminLink) adminLink.style.display = "none";  // Ховаємо від усіх інших
-    }
-    
-    // ... твій інший код відображення імені та аватара
-});
+  if (!Array.isArray(data) || data.length === 0) {
+    grid.innerHTML =
+      '<p style="color:#777; grid-column:1/-1; text-align:center;">База порожня.</p>';
+    return;
+  }
 
-// --- ЛОГІКА ВИСУВНОГО МЕНЮ ПО КЛІКУ ---
+  data.forEach((anime) => {
+    const card = document.createElement("div");
+    card.className = "anime-card";
 
+    const poster = anime.posterUrl || anime.image || "https://via.placeholder.com/200x300";
+    const title = anime.title || "Без назви";
+    const episodes = anime.episodes || "?";
+    const genres = anime.genres || "Жанри не вказані";
 
-// --- ЛОГІКА КОНТЕНТУ (Твій код) ---
+    card.innerHTML = `
+      <a href="anime-page.html?id=${encodeURIComponent(anime.id)}" class="card-link">
+        <div class="poster">
+          <img src="${poster}" alt="${title}">
+          <div class="episodes-badge">${episodes} серій</div>
+        </div>
+        <div class="info">
+          <div class="title">${title}</div>
+          <div class="meta">${genres}</div>
+        </div>
+      </a>
+    `;
 
-// 1. ЗАВАНТАЖЕННЯ ГОЛОВНОЇ СІТКИ (Index Page)
+    grid.appendChild(card);
+  });
+}
+
 async function loadMainGrid() {
-    const grid = document.getElementById('main-anime-grid');
-    if (!grid) return; 
+  const grid = $("#main-anime-grid");
+  if (!grid) return;
 
-    try {
-        const response = await fetch('/api/anime');
-        const data = await response.json();
-        grid.innerHTML = ''; 
-
-        if (data.length === 0) {
-            grid.innerHTML = '<p style="color: #777; grid-column: 1/-1; text-align: center;">База порожня.</p>';
-            return;
-        }
-
-        data.forEach((anime) => {
-            const card = document.createElement('div');
-            card.className = 'anime-card';
-            const poster = anime.posterUrl || anime.image || 'https://via.placeholder.com/200x300';
-            
-            card.innerHTML = `
-                <a href="anime-page.html?id=${anime.id}" class="card-link">
-                    <div class="poster">
-                        <img src="${poster}" alt="${anime.title}">
-                        <div class="episodes-badge">${anime.episodes || '?'} серій</div>
-                    </div>
-                    <div class="info">
-                        <div class="title">${anime.title}</div>
-                        <div class="meta">${anime.genres || 'Жанри не вказані'}</div>
-                    </div>
-                </a>
-            `;
-            grid.appendChild(card);
-        });
-    } catch (error) {
-        console.error("Помилка завантаження сітки:", error);
-    }
+  try {
+    const response = await fetch("/api/anime");
+    const data = await response.json();
+    animeCache = Array.isArray(data) ? data : [];
+    renderAnimeCards(animeCache);
+  } catch (error) {
+    console.error("Помилка завантаження сітки:", error);
+  }
 }
 
-// 2. ЗАВАНТАЖЕННЯ СТОРІНКИ АНІМЕ (Anime Page)
+function bindSearch() {
+  const searchInput = $("#anime-search");
+  if (!searchInput) return;
+
+  searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.trim().toLowerCase();
+
+    if (!query) {
+      renderAnimeCards(animeCache);
+      return;
+    }
+
+    const filtered = animeCache.filter((anime) =>
+      (anime.title || "").toLowerCase().includes(query)
+    );
+
+    renderAnimeCards(filtered);
+  });
+}
+
+// =========================
+// ANIME PAGE
+// =========================
+function parseEpisodes(playerUrl) {
+  if (!playerUrl) return [];
+
+  if (typeof playerUrl === "string") {
+    try {
+      const parsed = JSON.parse(playerUrl);
+      return Array.isArray(parsed) ? parsed : [{ nr: 1, url: playerUrl }];
+    } catch {
+      return [{ nr: 1, url: playerUrl }];
+    }
+  }
+
+  if (Array.isArray(playerUrl)) return playerUrl;
+
+  return [];
+}
+
 async function loadAnimePage() {
-    const params = new URLSearchParams(window.location.search);
-    const animeId = params.get('id');
-    const episodesGrid = document.getElementById('episodes-list');
-    if (!animeId || !episodesGrid) return;
+  const params = new URLSearchParams(window.location.search);
+  const animeId = params.get("id");
 
-    try {
-        const response = await fetch('/api/anime');
-        const data = await response.json();
-        const anime = data.find(item => item.id == animeId);
+  const titleEl = $("#anime-title");
+  const genresEl = $("#anime-genres");
+  const posterEl = $("#anime-poster");
+  const descriptionEl = $("#anime-description");
+  const playerEl =
+    $("#main-player") ||
+    $(".player-wrapper iframe") ||
+    $("iframe");
+  const episodesGrid = $("#episodes-list") || $(".episodes-grid");
 
-        if (!anime) {
-            document.getElementById('anime-title').innerText = "Аніме не знайдено";
-            return;
-        }
+  if (!animeId || !titleEl || !posterEl || !descriptionEl || !playerEl || !episodesGrid) return;
 
-        document.getElementById('anime-title').innerText = anime.title;
-        document.getElementById('anime-genres').innerText = anime.genres;
-        document.getElementById('anime-poster').src = anime.posterUrl || anime.image;
-        document.getElementById('anime-description').innerText = anime.description || 'Опис відсутній';
+  try {
+    const response = await fetch("/api/anime");
+    const data = await response.json();
+    const anime = Array.isArray(data) ? data.find((item) => String(item.id) === String(animeId)) : null;
 
-        const player = document.getElementById('main-player');
-        let episodesArray = [];
-
-        // Парсимо серії
-        if (typeof anime.playerUrl === 'string') {
-            try {
-                episodesArray = JSON.parse(anime.playerUrl);
-            } catch(e) {
-                episodesArray = [{ nr: 1, url: anime.playerUrl }];
-            }
-        } else if (Array.isArray(anime.playerUrl)) {
-            episodesArray = anime.playerUrl;
-        }
-
-        episodesGrid.innerHTML = '';
-        episodesArray.forEach((ep, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'ep-btn';
-            btn.innerText = `${ep.nr || index + 1} серія`;
-            btn.onclick = () => {
-                player.src = ep.url;
-                document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            };
-            episodesGrid.appendChild(btn);
-        });
-
-        if (episodesArray.length > 0 && player) player.src = episodesArray[0].url;
-
-    } catch (error) {
-        console.error("Помилка сторінки аніме:", error);
+    if (!anime) {
+      titleEl.textContent = "Аніме не знайдено";
+      return;
     }
-}
 
-// 3. ПОШУК
-const searchInput = document.getElementById('anime-search');
-if (searchInput) {
-    searchInput.addEventListener('input', async (e) => {
-        const query = e.target.value.toLowerCase();
-        if (query.length < 2) return;
+    titleEl.textContent = anime.title || "Без назви";
+    if (genresEl) genresEl.textContent = anime.genres || "Жанри не вказані";
+    posterEl.src = anime.posterUrl || anime.image || "https://via.placeholder.com/300x450";
+    descriptionEl.textContent = anime.description || "Опис відсутній";
 
-        try {
-            const response = await fetch('/api/anime');
-            const data = await response.json();
-            const filtered = data.filter(a => a.title.toLowerCase().includes(query));
-            console.log("Знайдено:", filtered.length);
-        } catch (err) {
-            console.error("Помилка пошуку:", err);
+    const episodesArray = parseEpisodes(anime.playerUrl);
+
+    episodesGrid.innerHTML = "";
+
+    if (!episodesArray.length) {
+      episodesGrid.innerHTML = '<p style="color:#777;">Серії не знайдені.</p>';
+      if ("src" in playerEl) playerEl.src = "";
+      return;
+    }
+
+    episodesArray.forEach((ep, index) => {
+      const btn = document.createElement("button");
+      btn.className = "ep-btn";
+      btn.type = "button";
+      btn.textContent = `${ep.nr || index + 1} серія`;
+
+      btn.addEventListener("click", () => {
+        if (ep.url && "src" in playerEl) {
+          playerEl.src = ep.url;
         }
+
+        $all(".ep-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+
+      episodesGrid.appendChild(btn);
     });
+
+    if (episodesArray[0]?.url && "src" in playerEl) {
+      playerEl.src = episodesArray[0].url;
+    }
+
+    const firstBtn = episodesGrid.querySelector(".ep-btn");
+    if (firstBtn) firstBtn.classList.add("active");
+  } catch (error) {
+    console.error("Помилка сторінки аніме:", error);
+  }
 }
 
-// Залиш ТІЛЬКИ ЦЕЙ блок для меню в кінці script.js
-document.addEventListener('DOMContentLoaded', () => {
-    const profileBtn = document.querySelector('.profile-preview');
-    const dropdown = document.querySelector('.dropdown-content');
-
-    if (profileBtn && dropdown) {
-        profileBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropdown.classList.toggle('show');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!profileBtn.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-    }
+// =========================
+// INIT
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+  bindAuthModal();
+  bindLogout();
+  bindDropdowns();
+  bindProfileEditor();
+  bindSearch();
+  loadMainGrid();
+  loadAnimePage();
 });
-
-// Функція керування меню
-const initDropdown = () => {
-    const profileBtn = document.querySelector('.profile-preview');
-    const dropdown = document.querySelector('.dropdown-content');
-
-    if (!profileBtn || !dropdown) return;
-
-    // Очищуємо старі обробники
-    profileBtn.onclick = null;
-    
-    profileBtn.addEventListener('click', (e) => {
-        // ВАЖЛИВО: Якщо ми натиснули на посилання ВСЕРЕДИНІ дропдауну, 
-        // дозволяємо браузеру перейти за посиланням і нічого не зупиняємо
-        if (e.target.closest('.dropdown-content a')) {
-            return; 
-        }
-
-        // Якщо натиснули на сам аватар або нік — відкриваємо/закриваємо меню
-        e.preventDefault();
-        e.stopPropagation();
-        dropdown.classList.toggle('show');
-    });
-
-    // Закриття при кліку поза межами меню
-    document.addEventListener('click', (e) => {
-        if (!profileBtn.contains(e.target)) {
-            dropdown.classList.remove('show');
-        }
-    });
-};
-
-// Запускаємо відразу і при зміні стану авторизації
-document.addEventListener('DOMContentLoaded', initDropdown);
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // ... твій код відображення профілю ...
-        
-        // Обов'язково викликаємо тут, бо елемент .profile-preview 
-        // часто з'являється динамічно після входу
-        setTimeout(initDropdown, 100); 
-    }
-});
-// щоб меню працювало після того, як юзер залогінився
-
-// ЗАПУСК ПРИ ЗАВАНТАЖЕННІ
-document.addEventListener('DOMContentLoaded', () => {
-    loadMainGrid();
-    loadAnimePage();
+  renderAuthUI(user);
+  renderProfilePage(user);
+  bindDropdowns();
 });
