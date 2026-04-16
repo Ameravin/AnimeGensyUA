@@ -5,17 +5,30 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_FILE = path.join(__dirname, "animeData.json");
+const PUBLIC_DIR = path.join(__dirname, "public");
+const DATA_DIR = path.join(__dirname, "data");
+const DATA_FILE = path.join(DATA_DIR, "animeData.json");
 
 app.use(express.json());
+app.use(express.static(PUBLIC_DIR));
+
+function ensureDataFile() {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+
+    if (!fs.existsSync(DATA_FILE)) {
+      fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2), "utf8");
+    }
+  } catch (error) {
+    console.error("Помилка створення data/animeData.json:", error);
+  }
+}
 
 function readData() {
   try {
-    if (!fs.existsSync(DATA_FILE)) {
-      fs.writeFileSync(DATA_FILE, JSON.stringify([], null, 2), "utf8");
-      return [];
-    }
-
+    ensureDataFile();
     const raw = fs.readFileSync(DATA_FILE, "utf8");
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -27,29 +40,35 @@ function readData() {
 
 function saveData(data) {
   try {
+    ensureDataFile();
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf8");
   } catch (error) {
     console.error("Помилка при записі JSON:", error);
   }
 }
 
-function sendFile(res, fileName) {
-  res.sendFile(path.join(__dirname, fileName));
-}
+// Pages
+app.get("/", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
+});
 
-// ===== PAGES =====
-app.get("/", (req, res) => sendFile(res, "index.html"));
-app.get("/index.html", (req, res) => sendFile(res, "index.html"));
-app.get("/anime-page.html", (req, res) => sendFile(res, "anime-page.html"));
-app.get("/profile.html", (req, res) => sendFile(res, "profile.html"));
-app.get("/admin.html", (req, res) => sendFile(res, "admin.html"));
+app.get("/index.html", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "index.html"));
+});
 
-// ===== ASSETS =====
-app.get("/style.css", (req, res) => sendFile(res, "style.css"));
-app.get("/script.js", (req, res) => sendFile(res, "script.js"));
-app.get("/generator.js", (req, res) => sendFile(res, "generator.js"));
+app.get("/anime-page.html", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "anime-page.html"));
+});
 
-// ===== API =====
+app.get("/profile.html", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "profile.html"));
+});
+
+app.get("/admin.html", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, "admin.html"));
+});
+
+// API
 app.get("/api/anime", (req, res) => {
   res.json(readData());
 });
