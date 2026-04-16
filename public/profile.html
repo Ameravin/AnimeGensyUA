@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Мій профіль — AnimeUA</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body style="background-color: #1a1a1a;">
+  <header class="header">
+    <div class="container header-content">
+      <a href="index.html" class="logo-link">
+        <div class="logo">Anime<span>UA</span></div>
+      </a>
+
+      <nav class="nav">
+        <a href="index.html">Головна</a>
+        <a href="#">Топ 100</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="profile-container">
+      <div class="profile-header-bar">
+        <span>ПРОФІЛЬ КОРИСТУВАЧА: <span id="profile-title-name">Завантаження...</span></span>
+      </div>
+
+      <div class="profile-info-grid">
+        <div class="profile-left-side">
+          <div class="profile-avatar-container">
+            <img
+              id="edit-avatar-preview"
+              src="https://via.placeholder.com/100?text=?"
+              alt="Avatar"
+            >
+            <div class="status-indicator online">ОНЛАЙН</div>
+          </div>
+          <button class="pm-btn" style="width: 112px; margin-top: 10px; cursor: pointer;">
+            Написати ПП
+          </button>
+        </div>
+
+        <div class="profile-right-side" style="flex-grow: 1;">
+          <div class="info-row">
+            <span>Група:</span>
+            <p>Анімешник</p>
+          </div>
+
+          <div class="info-row">
+            <span>Ім'я:</span>
+            <p id="info-display-name">...</p>
+          </div>
+
+          <div class="info-row">
+            <span>Статус:</span>
+            <p id="info-bio-display">Напишіть щось про себе...</p>
+          </div>
+
+          <button id="toggle-edit-btn" class="edit-profile-trigger">
+            Редагувати профіль
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="edit-section"
+        class="edit-section"
+        style="display: none; border-top: 1px dashed #ccc; padding-bottom: 20px;"
+      >
+        <div class="profile-header-bar" style="background: #f0f0f0; margin-bottom: 15px;">
+          РЕДАГУВАННЯ ПРОФІЛЮ
+        </div>
+
+        <div class="edit-form" style="padding: 0 20px;">
+          <div class="edit-row">
+            <label>Новий нікнейм:</label>
+            <input type="text" id="display-name-input" placeholder="Введіть ім'я">
+          </div>
+
+          <div class="edit-row">
+            <label>Аватар:</label>
+            <div class="file-upload-block">
+              <input type="file" id="avatar-file-input" accept="image/*">
+              <p style="font-size: 11px; color: #777;">
+                Оберіть файл на комп'ютері
+              </p>
+            </div>
+          </div>
+
+          <div class="edit-row">
+            <label>Біо:</label>
+            <textarea
+              id="bio-input"
+              rows="4"
+              placeholder="Розкажіть щось про себе..."
+            ></textarea>
+          </div>
+
+          <button id="save-profile-btn" class="edit-profile-trigger" style="margin-top: 15px;">
+            Зберегти зміни
+          </button>
+
+          <div id="save-status" style="display: none; margin-top: 10px; font-size: 13px; color: #10b981;">
+            Зміни збережено!
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>
