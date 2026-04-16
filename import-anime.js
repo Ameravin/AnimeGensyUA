@@ -1,19 +1,22 @@
 const fs = require("fs");
 const path = require("path");
-const axios = require("axios");
 
 const OUTPUT_FILE = path.join(__dirname, "data", "animeData.json");
 const API_URL = "https://graphql.anilist.co";
+const TRANSLATE_URL = "https://translate.googleapis.com/translate_a/single";
 
 const args = process.argv.slice(2);
-const getArg = (name, def) => {
-  const idx = args.indexOf(name);
-  return idx !== -1 && args[idx + 1] ? args[idx + 1] : def;
-};
+
+function getArg(name, def) {
+  const i = args.indexOf(name);
+  return i !== -1 && args[i + 1] ? args[i + 1] : def;
+}
 
 const pages = Math.max(1, parseInt(getArg("--pages", "10"), 10));
 const perPage = Math.min(50, Math.max(1, parseInt(getArg("--perPage", "50"), 10)));
 const mergeMode = args.includes("--merge");
+
+const translateCache = new Map();
 
 function ensureDir(filePath) {
   const dir = path.dirname(filePath);
@@ -56,54 +59,36 @@ function pickStudio(studios) {
   return main?.node?.name || list[0]?.node?.name || "";
 }
 
-function toAnimeItem(media) {
-  const titleRomaji = media.title?.romaji || "";
-  const titleEnglish = media.title?.english || "";
-  const titleNative = media.title?.native || "";
-  const title = titleEnglish || titleRomaji || titleNative || "Без назви";
+async function translateUk(text) {
+  const src = (text || "").trim();
+  if (!src) return "";
 
-  const description = cleanText(media.description) || "Опис відсутній";
-  const posterUrl = media.coverImage?.large || media.coverImage?.extraLarge || "";
-  const year = media.seasonYear || "";
-  const episodes = media.episodes || "";
-  const genres = Array.isArray(media.genres) ? media.genres.join(", ") : "";
-  const studio = pickStudio(media.studios);
+  if (translateCache.has(src)) return translateCache.get(src);
 
-  return {
-    id: media.id,
-    title,
-    title_ua: "",
-    title_native: titleNative,
-    year: year ? String(year) : "",
-    studio,
-    studio_ua: "",
-    genres,
-    episodes: episodes ? String(episodes) : "",
-    description,
-    description_ua: "",
-    posterUrl,
-    image: posterUrl,
-    status: media.status || "",
-    format: media.format || "",
-    season: media.season || "",
-    score: media.averageScore || "",
-    trailerUrl: media.trailer?.site && media.trailer?.id ? `${media.trailer.site}/${media.trailer.id}` : "",
-    dub_ua: "",
-    voice_studio: "",
-    playerUrl: []
-  };
+  try {
+    const url =
+      `${TRANSLATE_URL}?client=gtx&sl=auto&tl=uk&dt=t&q=` +
+      encodeURIComponent(src);
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const translated = Array.isArray(data?.[0])
+      ? data[0].map((part) => part[0]).join("").trim()
+      : src;
+
+    translateCache.set(src, translated || src);
+    return translated || src;
+  } catch (err) {
+    translateCache.set(src, src);
+    return src;
+  }
 }
 
 async function fetchPage(page) {
   const query = `
     query ($page: Int, $perPage: Int) {
       Page(page: $page, perPage: $perPage) {
-        pageInfo {
-          total
-          currentPage
-          lastPage
-          hasNextPage
-        }
         media(type: ANIME, sort: POPULARITY_DESC) {
           id
           title {
@@ -140,42 +125,88 @@ async function fetchPage(page) {
     }
   `;
 
-  const response = await axios.post(
-    API_URL,
-    { query, variables: { page, perPage } },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      timeout: 30000
-    }
-  );
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      variables: { page, perPage },
+    }),
+  });
 
-  if (response.data.errors) {
-    throw new Error(JSON.stringify(response.data.errors));
+  const json = await res.json();
+
+  if (json.errors) {
+    throw new Error(JSON.stringify(json.errors));
   }
 
-  return response.data.data.Page;
+  return json.data.Page;
+}
+
+async function toAnimeItem(media) {
+  const titleSource =
+    media.title?.english ||
+    media.title?.romaji ||
+    media.title?.native ||
+    "Без назви";
+
+  const descriptionSource = cleanText(media.description) || "Опис відсутній";
+  const genresSource = Array.isArray(media.genres) ? media.genres.join(", ") : "";
+  const studioSource = pickStudio(media.studios);
+
+  const [titleUa, descriptionUa, genresUa, studioUa] = await Promise.all([
+    translateUk(titleSource),
+    translateUk(descriptionSource),
+    translateUk(genresSource),
+    translateUk(studioSource),
+  ]);
+
+  const posterUrl = media.coverImage?.large || media.coverImage?.extraLarge || "";
+
+  return {
+    id: media.id,
+    title: titleSource,
+    title_ua: titleUa || titleSource,
+    title_native: media.title?.native || "",
+    year: media.seasonYear ? String(media.seasonYear) : "",
+    studio: studioSource,
+    studio_ua: studioUa || studioSource,
+    genres: genresSource,
+    genres_ua: genresUa || genresSource,
+    episodes: media.episodes ? String(media.episodes) : "",
+    description: descriptionSource,
+    description_ua: descriptionUa || descriptionSource,
+    posterUrl,
+    image: posterUrl,
+    status: media.status || "",
+    format: media.format || "",
+    season: media.season || "",
+    score: media.averageScore || "",
+    trailerUrl:
+      media.trailer?.site && media.trailer?.id
+        ? `${media.trailer.site}/${media.trailer.id}`
+        : "",
+    dub_ua: "",
+    voice_studio: "",
+    playerUrl: [],
+  };
 }
 
 async function main() {
   console.log(`Старт імпорту: pages=${pages}, perPage=${perPage}, merge=${mergeMode}`);
 
   const allItems = [];
-  let totalPages = pages;
 
-  for (let page = 1; page <= totalPages; page++) {
-    process.stdout.write(`Завантажую сторінку ${page}/${totalPages}...\r`);
+  for (let page = 1; page <= pages; page++) {
+    process.stdout.write(`Завантажую сторінку ${page}/${pages}...\r`);
     const result = await fetchPage(page);
-
-    if (page === 1 && result?.pageInfo?.lastPage) {
-      totalPages = Math.min(totalPages, result.pageInfo.lastPage);
-    }
-
     const media = result?.media || [];
+
     for (const item of media) {
-      allItems.push(toAnimeItem(item));
+      allItems.push(await toAnimeItem(item));
     }
   }
 
@@ -197,15 +228,15 @@ async function main() {
   }
 
   finalData.sort((a, b) => {
-    const aTitle = (a.title || "").toLowerCase();
-    const bTitle = (b.title || "").toLowerCase();
+    const aTitle = (a.title_ua || a.title || "").toLowerCase();
+    const bTitle = (b.title_ua || b.title || "").toLowerCase();
     return aTitle.localeCompare(bTitle);
   });
 
   saveData(finalData);
 
   console.log(`Готово. Записано ${finalData.length} аніме у ${OUTPUT_FILE}`);
-  console.log("UA-поля залишені порожніми для ручного доповнення.");
+  console.log("UA-поля заповнені автоматично.");
 }
 
 main().catch((err) => {
