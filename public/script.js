@@ -43,17 +43,16 @@ function getCurrentPage() {
   return window.location.pathname.split("/").pop() || "index.html";
 }
 
-function isIndexPage() {
-  const page = getCurrentPage();
-  return page === "index.html" || page === "" || page === "/";
+function isProfilePage() {
+  return getCurrentPage().includes("profile.html");
 }
 
 function isAnimePage() {
   return getCurrentPage().includes("anime-page.html");
 }
 
-function isProfilePage() {
-  return getCurrentPage().includes("profile.html");
+function safeName(user) {
+  return user?.displayName || user?.email?.split("@")[0] || "Користувач";
 }
 
 function getSavedBio(uid) {
@@ -64,8 +63,20 @@ function setSavedBio(uid, value) {
   localStorage.setItem(`bio_${uid}`, value || "");
 }
 
-function safeName(user) {
-  return user?.displayName || user?.email?.split("@")[0] || "Користувач";
+function getAnimeTitle(anime) {
+  return anime?.title_ua || anime?.title || anime?.title_native || "Без назви";
+}
+
+function getAnimeGenres(anime) {
+  return anime?.genres_ua || anime?.genres || "Жанри не вказані";
+}
+
+function getAnimeDescription(anime) {
+  return anime?.description_ua || anime?.description || "Опис відсутній";
+}
+
+function getAnimeStudio(anime) {
+  return anime?.studio_ua || anime?.studio || "";
 }
 
 // =========================
@@ -144,8 +155,7 @@ function bindDropdowns() {
     if (!dropdown) return;
 
     profileBtn.addEventListener("click", (e) => {
-      const clickedLink = e.target.closest(".dropdown-content a");
-      if (clickedLink) return;
+      if (e.target.closest(".dropdown-content a")) return;
 
       e.preventDefault();
       e.stopPropagation();
@@ -162,14 +172,14 @@ function bindDropdowns() {
 }
 
 // =========================
-// AUTH UI RENDER
+// AUTH UI
 // =========================
 function renderAuthUI(user) {
   const authBtn = $("#auth-btn");
   const profileBlock = $("#profile-block");
+  const adminLinks = $all('a[href="admin.html"]');
   const userAvatarTargets = $all("#user-avatar, .profile-preview img.avatar");
   const userNameTargets = $all("#user-name, .profile-preview .username");
-  const adminLinks = $all('a[href="admin.html"]');
 
   if (user) {
     if (authBtn) authBtn.style.display = "none";
@@ -212,7 +222,7 @@ function renderProfilePage(user) {
   if (!user) {
     if (profileTitle) profileTitle.textContent = "Гість";
     if (infoDisplayName) infoDisplayName.textContent = "Гість";
-    if (infoBioDisplay) infoBioDisplay.textContent = "Увійдіть, щоб бачити та редагувати профіль.";
+    if (infoBioDisplay) infoBioDisplay.textContent = "Увійдіть, щоб редагувати профіль.";
     if (avatarPreview) avatarPreview.src = "https://via.placeholder.com/100?text=?";
     if (displayNameInput) displayNameInput.value = "";
     if (bioInput) bioInput.value = "";
@@ -244,8 +254,8 @@ function bindProfileEditor() {
 
   if (toggleBtn && editSection) {
     toggleBtn.addEventListener("click", () => {
-      const isHidden = getComputedStyle(editSection).display === "none";
-      editSection.style.display = isHidden ? "block" : "none";
+      editSection.style.display =
+        getComputedStyle(editSection).display === "none" ? "block" : "none";
     });
   }
 
@@ -322,7 +332,7 @@ function bindProfileEditor() {
 }
 
 // =========================
-// MAIN PAGE
+// ANIME LIST / MAIN PAGE
 // =========================
 let animeCache = [];
 
@@ -343,9 +353,9 @@ function renderAnimeCards(data) {
     card.className = "anime-card";
 
     const poster = anime.posterUrl || anime.image || "https://via.placeholder.com/200x300";
-    const title = anime.title || "Без назви";
+    const title = getAnimeTitle(anime);
+    const genres = getAnimeGenres(anime);
     const episodes = anime.episodes || "?";
-    const genres = anime.genres || "Жанри не вказані";
 
     card.innerHTML = `
       <a href="anime-page.html?id=${encodeURIComponent(anime.id)}" class="card-link">
@@ -391,7 +401,7 @@ function bindSearch() {
     }
 
     const filtered = animeCache.filter((anime) =>
-      (anime.title || "").toLowerCase().includes(query)
+      getAnimeTitle(anime).toLowerCase().includes(query)
     );
 
     renderAnimeCards(filtered);
@@ -426,10 +436,7 @@ async function loadAnimePage() {
   const genresEl = $("#anime-genres");
   const posterEl = $("#anime-poster");
   const descriptionEl = $("#anime-description");
-  const playerEl =
-    $("#main-player") ||
-    $(".player-wrapper iframe") ||
-    $("iframe");
+  const playerEl = $("#main-player") || $(".player-wrapper iframe") || $("iframe");
   const episodesGrid = $("#episodes-list") || $(".episodes-grid");
 
   if (!animeId || !titleEl || !posterEl || !descriptionEl || !playerEl || !episodesGrid) return;
@@ -437,20 +444,21 @@ async function loadAnimePage() {
   try {
     const response = await fetch("/api/anime");
     const data = await response.json();
-    const anime = Array.isArray(data) ? data.find((item) => String(item.id) === String(animeId)) : null;
+    const anime = Array.isArray(data)
+      ? data.find((item) => String(item.id) === String(animeId))
+      : null;
 
     if (!anime) {
       titleEl.textContent = "Аніме не знайдено";
       return;
     }
 
-    titleEl.textContent = anime.title || "Без назви";
-    if (genresEl) genresEl.textContent = anime.genres || "Жанри не вказані";
+    titleEl.textContent = getAnimeTitle(anime);
+    if (genresEl) genresEl.textContent = getAnimeGenres(anime);
     posterEl.src = anime.posterUrl || anime.image || "https://via.placeholder.com/300x450";
-    descriptionEl.textContent = anime.description || "Опис відсутній";
+    descriptionEl.textContent = getAnimeDescription(anime);
 
     const episodesArray = parseEpisodes(anime.playerUrl);
-
     episodesGrid.innerHTML = "";
 
     if (!episodesArray.length) {
