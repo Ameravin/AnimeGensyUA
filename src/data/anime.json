@@ -1,0 +1,80 @@
+[
+  {
+    "id": 1,
+    "title": "Наруто",
+    "slug": "naruto",
+    "description": "Історія про хлопця-ніндзя, який мріє стати Хокаґе.",
+    "year": 2002,
+    "status": "completed",
+    "genres": ["Екшен", "Пригоди", "Шьонен"],
+    "episodes": 220,
+    "image": "",
+    "sources": ["Ashdi", "MoonAnime"],
+    "voices": ["Amanogawa", "FanVox"],
+    "episodeList": [
+      { "number": 1, "title": "Початок" },
+      { "number": 2, "title": "Перший виклик" },
+      { "number": 3, "title": "Тренування" },
+      { "number": 4, "title": "Суперник" },
+      { "number": 5, "title": "Місія" },
+      { "number": 6, "title": "Бій" },
+      { "number": 7, "title": "Рішення" },
+      { "number": 8, "title": "Небезпека" },
+      { "number": 9, "title": "Новий шлях" }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Атака титанів",
+    "slug": "attack-on-titan",
+    "description": "Людство веде боротьбу за виживання проти титанів.",
+    "year": 2013,
+    "status": "completed",
+    "genres": ["Екшен", "Драма", "Фентезі"],
+    "episodes": 89,
+    "image": "",
+    "sources": ["Ashdi", "MoonAnime"],
+    "voices": ["Amanogawa", "DubStudio"],
+    "episodeList": [
+      { "number": 1, "title": "Падіння" },
+      { "number": 2, "title": "Стіна" },
+      { "number": 3, "title": "Помста" }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Зошит смерті",
+    "slug": "death-note",
+    "description": "Школяр знаходить зошит, здатний вбивати людей.",
+    "year": 2006,
+    "status": "completed",
+    "genres": ["Трилер", "Детектив", "Надприродне"],
+    "episodes": 37,
+    "image": "",
+    "sources": ["Ashdi"],
+    "voices": ["Amanogawa"],
+    "episodeList": [
+      { "number": 1, "title": "Відродження" },
+      { "number": 2, "title": "Протистояння" },
+      { "number": 3, "title": "Підозра" }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Магічна битва",
+    "slug": "jujutsu-kaisen",
+    "description": "Юджі Ітадорі потрапляє у світ проклять і чаклунів.",
+    "year": 2020,
+    "status": "ongoing",
+    "genres": ["Екшен", "Надприродне", "Шьонен"],
+    "episodes": 47,
+    "image": "",
+    "sources": ["MoonAnime", "Ashdi"],
+    "voices": ["Amanogawa", "FanVox"],
+    "episodeList": [
+      { "number": 1, "title": "Прокляття" },
+      { "number": 2, "title": "Палець" },
+      { "number": 3, "title": "Школа" }
+    ]
+  }
+]
